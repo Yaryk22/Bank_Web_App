@@ -1,0 +1,270 @@
+:root {
+    --bg-main: #020617;
+    --accent: #38bdf8;
+    --accent-glow: rgba(56, 189, 248, 0.4);
+    --glass: rgba(15, 23, 42, 0.8);
+    --border: rgba(56, 189, 248, 0.2);
+    --text: #f8fafc;
+    --error: #ef4444;
+    --success: #22c55e;
+    --warning: #f59e0b;
+}
+
+body {
+    background: radial-gradient(circle at center, #0c4a6e 0%, #020617 100%);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+}
+
+/* --- СКЛЯНИЙ КОНТЕЙНЕР --- */
+.glass-container {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- СТИЛЬНІ ФОРМИ ТА ІНПУТИ --- */
+form label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input, select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px;
+    padding: 12px;
+    color: white !important;
+    margin-bottom: 20px;
+    transition: 0.3s;
+    outline: none;
+}
+
+input:focus, select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 15px var(--accent-glow);
+    background: rgba(56, 189, 248, 0.05) !important;
+}
+
+/* --- КНОПКИ З АНІМАЦІЄЮ (Покращена версія) --- */
+.btn-cyber {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    
+    /* 1. ЦЕЙ РЯДОК РОБИТЬ ВСІ ЗМІНИ ПЛАВНИМИ */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    position: relative;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none; /* щоб посилання не підкреслювалося */
+}
+
+/* 2. ЕФЕКТ ПРИ НАВЕДЕННІ КУРСОРУ */
+.btn-cyber:hover {
+    background: var(--accent);
+    color: var(--bg-main);
+    box-shadow: 0 0 20px var(--accent-glow);
+    
+    /* Кнопка трохи піднімається вгору */
+    transform: translateY(-3px) scale(1.02); 
+}
+
+/* 3. ЕФЕКТ ПРИ НАТИСКАННІ (КЛІКУ) */
+.btn-cyber:active {
+    transform: translateY(-1px) scale(0.98); /* Кнопка ніби вдавлюється */
+    filter: brightness(1.2); /* Стає трохи яскравішою */
+} 
+/* --- ТАБЛИЦІ --- */
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+}
+
+th {
+    padding: 15px;
+    color: var(--accent);
+    text-align: left;
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+}
+
+td {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+}
+
+tr:hover td {
+    background: rgba(56, 189, 248, 0.08);
+}
+
+/* --- НАВІГАЦІЯ --- */
+.side-nav {
+    background: rgba(2, 6, 23, 0.9);
+    border-right: 1px solid var(--border);
+    height: 100vh;
+    position: fixed;
+    width: 250px;
+    padding: 20px;
+}
+
+.menu-item {
+    display: block;
+    padding: 15px;
+    color: var(--text);
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    transition: 0.3s;
+}
+
+.menu-item:hover {
+    background: var(--accent-glow);
+    padding-left: 25px;
+}
+
+/* Ефект світіння тексту */
+h2 span, .brand-name span {
+    color: var(--text);
+    text-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Списки у картках */
+.info-card ul li::before {
+    content: '>';
+    color: var(--accent);
+    margin-right: 10px;
+    font-family: 'Orbitron';
+    font-size: 0.8rem;
+}
+
+/* Плавна анімація для всіх карток при наведенні */
+.info-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border-color: var(--accent);
+}
+
+/* Анімація для іконки всередині кнопки */
+.plus-anim {
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.4s ease; /* Плавність обертання */
+}
+
+.btn-cyber:hover .plus-anim {
+    transform: rotate(180deg); /* Обертаємо на 180 градусів при наведенні */
+}
+
+/* Стиль для активного пункту меню */
+.menu-item.active {
+    background: rgba(56, 189, 248, 0.15) !important;
+    border-left: 4px solid var(--accent);
+    color: var(--accent);
+    box-shadow: inset 10px 0 15px rgba(56, 189, 248, 0.1);
+    padding-left: 25px !important;
+}
+
+/* Анімація підсвітки при наведенні на будь-який пункт */
+.menu-item {
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -100%;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    transition: 0.5s;
+}
+
+.menu-item:hover::after {
+    left: 100%;
+}
+
+.menu-item:hover .menu-icon {
+    display: inline-block;
+    animation: iconBounce 0.5s ease;
+}
+
+@keyframes iconBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Робимо всі форми прозорими та стильними */
+form {
+    background: rgba(15, 23, 42, 0.4) !important; /* Напівпрозорий фон */
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 25px;
+    backdrop-filter: blur(10px); /* Ефект розмиття скла */
+}
+
+/* Оновлюємо інпути та випадаючі списки */
+input[type="text"], 
+input[type="password"], 
+select {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3) !important; /* Темний фон для полів */
+    border: 1px solid var(--border) !important;
+    color: white !important;
+    padding: 12px;
+    border-radius: 6px;
+    font-family: 'Orbitron', sans-serif;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* Колір тексту всередині випадаючого списку (щоб бачити варіанти) */
+select option {
+    background: #0f172a; /* Темний колір для списку, що випадає */
+    color: white;
+}
+
+/* Ефект при фокусі (коли натискаєш на поле) */
+input:focus, select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+/* Колір плейсхолдера (підказки) */
+::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}

@@ -1,0 +1,748 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    :root {
+        --bg-main: #020617;
+        --accent: #38bdf8;
+        --accent-glow: rgba(56, 189, 248, 0.4);
+        --glass: rgba(15, 23, 42, 0.9);
+        --border: rgba(56, 189, 248, 0.2);
+        --text: #f8fafc;
+        --error: #ef4444;
+        --success: #00ff88;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    @keyframes glow-pulse {
+        0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+        50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px var(--accent-glow); }
+    }
+
+    .content-wrapper { 
+        max-width: 1400px; 
+        margin: 0 auto; 
+        padding: 20px 40px; 
+        animation: fadeIn 0.8s ease-out;
+        box-sizing: border-box; 
+    }
+    
+    .profile-grid { 
+        display: grid; 
+        grid-template-columns: 1fr 380px;
+        gap: 30px; 
+        align-items: start; 
+    }
+
+    /* ШАПКА */
+    .profile-header { 
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--accent);
+        padding: 30px; 
+        border-radius: 15px; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+        margin-bottom: 25px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        margin: 0;
+        background: linear-gradient(135deg, var(--accent), #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    /* КАРТКИ З 3D ЕФЕКТОМ */
+    .cards-grid { 
+        display: grid; 
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
+        gap: 25px; 
+        margin-bottom: 30px;
+        perspective: 1000px;
+    }
+
+    .bank-card {
+        border-radius: 20px;
+        padding: 28px;
+        position: relative;
+        overflow: hidden;
+        aspect-ratio: 1.586 / 1; 
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+        transform-style: preserve-3d;
+        cursor: pointer;
+    }
+
+    /* 3D ЕФЕКТ ПРИ НАВЕДЕННІ */
+    .bank-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            115deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.1) 40%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.1) 60%,
+            transparent 100%
+        );
+        background-size: 200% 200%;
+        background-position: -100% 0;
+        transition: background-position 0.6s;
+        pointer-events: none;
+        border-radius: 20px;
+        opacity: 0;
+    }
+
+    .bank-card:hover::before {
+        opacity: 1;
+        animation: shimmer 2s infinite;
+    }
+
+    .bank-card:hover {
+        box-shadow: 0 25px 80px rgba(0,0,0,0.7), 0 0 40px var(--accent-glow);
+        transform: translateY(-10px) scale(1.02);
+    }
+
+    /* ГОЛОГРАФІЧНИЙ ЕФЕКТ */
+    .holographic-overlay {
+        position: absolute;
+        inset: 0;
+        background: 
+            radial-gradient(circle at var(--x, 50%) var(--y, 50%), 
+                rgba(255, 255, 255, 0.15) 0%, 
+                transparent 50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+        border-radius: 20px;
+    }
+
+    .bank-card:hover .holographic-overlay {
+        opacity: 1;
+    }
+
+    /* РІЗНІ ДИЗАЙНИ КАРТОК */
+    .card-uah { 
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #020617 100%);
+        border-bottom: 4px solid var(--accent);
+    }
+    
+    .card-usd { 
+        background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #001a14 100%);
+        border-bottom: 4px solid var(--success);
+    }
+    
+    .card-eur { 
+        background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #0f0d2e 100%);
+        border-bottom: 4px solid #818cf8;
+    }
+
+    /* ЧІП КАРТКИ */
+    .card-chip {
+        width: 45px;
+        height: 32px;
+        background: linear-gradient(135deg, #ffd700, #daa520, #b8860b);
+        border-radius: 6px;
+        box-shadow: 
+            inset 0 2px 5px rgba(0,0,0,0.5),
+            inset 0 -2px 5px rgba(255,255,255,0.3),
+            0 4px 10px rgba(0,0,0,0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-chip::before {
+        content: '';
+        position: absolute;
+        inset: 4px;
+        background: 
+            repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.1) 1px, transparent 2px),
+            repeating-linear-gradient(0deg, transparent 0px, rgba(0,0,0,0.1) 1px, transparent 2px);
+        border-radius: 3px;
+    }
+
+    /* НОМЕР КАРТКИ */
+    .card-number {
+        font-family: 'Orbitron', monospace;
+        font-size: 1.15rem;
+        letter-spacing: 4px;
+        color: #fff;
+        margin: 18px 0;
+        text-shadow: 
+            0 0 10px rgba(255,255,255,0.5),
+            0 2px 4px rgba(0,0,0,0.5);
+        font-weight: 600;
+    }
+
+    .blocked-overlay {
+        position: absolute; 
+        inset: 0;
+        background: rgba(15, 23, 42, 0.97);
+        backdrop-filter: blur(10px);
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        color: var(--error); 
+        font-family: 'Orbitron'; 
+        font-size: 1.1rem; 
+        z-index: 10;
+        letter-spacing: 2px; 
+        border: 2px solid var(--error); 
+        border-radius: 20px;
+        animation: glow-pulse 2s infinite;
+    }
+
+    /* ПРАВА ПАНЕЛЬ */
+    .side-column { 
+        width: 100%; 
+        box-sizing: border-box;
+    }
+
+    .cyber-widget {
+        background: var(--glass);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+
+    .widget-label {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        color: var(--accent);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .widget-label i {
+        font-size: 1rem;
+    }
+
+    /* КНОПКИ - ЗБІЛЬШЕНІ */
+    .btn-cyber-action {
+        background: transparent;
+        border: 2px solid var(--accent);
+        color: var(--accent);
+        padding: 16px 20px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.85rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        text-decoration: none;
+        text-align: center;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+        font-weight: 600;
+    }
+
+    .btn-cyber-action::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--accent);
+        transform: translateY(100%);
+        transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: -1;
+    }
+
+    .btn-cyber-action:hover::before {
+        transform: translateY(0);
+    }
+
+    .btn-cyber-action:hover {
+        color: #020617;
+        box-shadow: 0 0 25px var(--accent-glow), 0 0 50px var(--accent-glow);
+        transform: translateY(-3px);
+        border-color: var(--accent);
+    }
+
+    .btn-danger-cyber { 
+        border-color: var(--error); 
+        color: var(--error); 
+    }
+
+    .btn-danger-cyber::before {
+        background: var(--error);
+    }
+
+    .btn-danger-cyber:hover { 
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.5), 0 0 50px rgba(239, 68, 68, 0.3);
+        color: #fff;
+        border-color: var(--error);
+    }
+
+    /* ГОДИННИК - ЗБІЛЬШЕНИЙ */
+    #clock-profile {
+        font-family: 'Orbitron', monospace;
+        font-size: 2.5rem;
+        color: var(--accent);
+        text-shadow: 
+            0 0 20px var(--accent-glow),
+            0 0 40px var(--accent-glow);
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 3px;
+        padding: 15px 0;
+    }
+
+    /* КУРС ВАЛЮТ - ЗБІЛЬШЕНИЙ */
+    .rate-item {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Orbitron', monospace;
+        margin-bottom: 12px;
+        padding: 12px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 8px;
+        border-left: 3px solid var(--success);
+        font-size: 0.95rem;
+    }
+
+    .rate-item:last-child {
+        margin-bottom: 0;
+        border-left-color: #818cf8;
+    }
+
+    .rate-value {
+        color: var(--success);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    /* ЖУРНАЛ ОПЕРАЦІЙ */
+    .log-container {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px dotted var(--border);
+        border-radius: 10px;
+        padding: 18px;
+        max-height: 350px;
+        overflow-y: auto;
+    }
+
+    .log-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .log-container::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.05);
+        border-radius: 4px;
+    }
+
+    .log-container::-webkit-scrollbar-thumb {
+        background: var(--accent);
+        border-radius: 4px;
+    }
+
+    .log-entry {
+        font-size: 0.8rem;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+    }
+
+    .log-entry:hover {
+        background: rgba(255,255,255,0.02);
+        padding-left: 10px;
+        border-left: 2px solid var(--accent);
+    }
+
+    .log-entry:last-child {
+        border-bottom: none;
+    }
+
+    .log-time { 
+        color: var(--accent); 
+        font-family: 'Orbitron', monospace;
+        margin-right: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .log-status {
+        font-family: 'Orbitron', monospace;
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-weight: 700;
+    }
+
+    .status-success {
+        background: rgba(0, 255, 136, 0.1);
+        color: var(--success);
+        border: 1px solid var(--success);
+    }
+
+    .status-opened {
+        background: rgba(56, 189, 248, 0.1);
+        color: var(--accent);
+        border: 1px solid var(--accent);
+    }
+
+    .status-locked {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--error);
+        border: 1px solid var(--error);
+    }
+
+    /* КНОПКА БЛОКУВАННЯ КАРТКИ */
+    .card-action-btn {
+        padding: 10px 12px;
+        border-radius: 8px;
+        transition: all 0.3s;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.2);
+        z-index: 20;
+        position: relative;
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .card-action-btn.card-blocked {
+        color: var(--success);
+    }
+
+    .card-action-btn:hover {
+        background: rgba(255,255,255,0.1);
+        transform: scale(1.1);
+        box-shadow: 0 0 20px rgba(255,255,255,0.3);
+    }
+
+    /* АДАПТИВНІСТЬ */
+    @media (max-width: 1024px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .side-column {
+            max-width: 100%;
+        }
+
+        .cards-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+
+    /* НОВА КАРТКА */
+    .new-card-placeholder {
+        border: 2px dashed var(--border);
+        background: rgba(255,255,255,0.02);
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: all 0.4s;
+    }
+
+    .new-card-placeholder:hover {
+        background: rgba(255,255,255,0.05);
+        border-color: var(--accent);
+        box-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .issue-card-buttons {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .btn-issue-card {
+        padding: 12px 20px;
+        font-size: 0.75rem;
+        width: auto;
+        min-width: 80px;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="profile-header">
+        <div>
+            <h1 class="profile-name">{{ client.name }}</h1>
+            <p style="color: #64748b; font-family: 'Orbitron'; margin-top: 8px; font-size: 0.85rem;">
+                СТАТУС: АКТИВНИЙ | ID: #{{ client.id }}
+            </p>
+        </div>
+        <div style="text-align: right; font-family: 'Orbitron'; color: var(--success); border: 2px solid var(--success); padding: 15px 20px; border-radius: 10px; background: rgba(0, 255, 136, 0.05);">
+            <small style="display:block; font-size: 0.65rem; opacity: 0.7; margin-bottom: 5px;">РЕЙТИНГ КЛІЄНТА</small>
+            <div style="font-size: 1.2rem; font-weight: 700;">{{ rating.label }}</div>
+        </div>
+    </div>
+
+    <div class="profile-grid">
+        <div class="main-column">
+            <h3 class="widget-label" style="font-size: 0.9rem; margin-bottom: 20px;">
+                <i class="fas fa-microchip"></i> АКТИВНІ ФІНАНСОВІ ШЛЮЗИ
+            </h3>
+            
+            <div class="cards-grid">
+                {% for card in cards %}
+                <div class="bank-card {{ 'card-usd' if card.currency == 'USD' else 'card-uah' if card.currency == 'UAH' else 'card-eur' }}" 
+                     data-card-id="{{ card.id }}">
+                    <div class="holographic-overlay"></div>
+                    
+                    {% if card.status == 'Заблокована' %}
+                        <div class="blocked-overlay">
+                            <i class="fas fa-user-slash" style="margin-right: 12px; font-size: 1.3rem;"></i> 
+                            ДОСТУП ПРИПИНЕНО
+                        </div>
+                    {% endif %}
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span style="font-family: 'Orbitron'; font-size: 0.65rem; opacity: 0.8; letter-spacing: 1.5px; font-weight: 600;">
+                            КРИСТАЛ БАНК // {{ card.currency }}
+                        </span>
+                        <div class="card-chip"></div>
+                    </div>
+
+                    <div class="card-number">
+                        {{ card.card_number }}
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <p style="font-size: 0.55rem; color: rgba(255,255,255,0.5); margin: 0 0 5px 0; font-family: 'Orbitron'; letter-spacing: 1px;">
+                                ПОТОЧНИЙ БАЛАНС
+                            </p>
+                            <p style="font-family: 'Orbitron'; font-size: 1.6rem; color: #fff; margin: 0; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                                {{ card.balance }} {{ '₴' if card.currency == 'UAH' else '$' if card.currency == 'USD' else '€' }}
+                            </p>
+                        </div>
+                        
+                        <a href="/toggle-card/{{ card.id }}" 
+                           class="card-action-btn {% if card.status == 'Заблокована' %}card-blocked{% endif %}" 
+                           title="{{ 'Розблокувати картку' if card.status == 'Заблокована' else 'Заблокувати картку' }}">
+                            <i class="fas {{ 'fa-unlock-alt' if card.status == 'Заблокована' else 'fa-lock' }} fa-lg"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if cards|length < 3 %}
+                <div class="bank-card new-card-placeholder">
+                    <p class="widget-label" style="margin-bottom: 20px; font-size: 0.85rem;">
+                        <i class="fas fa-plus-circle"></i> ЕМІСІЯ НОВОГО РАХУНКУ
+                    </p>
+                    <div class="issue-card-buttons">
+                        <a href="/issue-card/{{ client.id }}/UAH" class="btn-cyber-action btn-issue-card">
+                            + UAH
+                        </a>
+                        <a href="/issue-card/{{ client.id }}/USD" class="btn-cyber-action btn-issue-card">
+                            + USD
+                        </a>
+                        <a href="/issue-card/{{ client.id }}/EUR" class="btn-cyber-action btn-issue-card">
+                            + EUR
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="cyber-widget">
+                <p class="widget-label">
+                    <i class="fas fa-terminal"></i> ЖУРНАЛ ОПЕРАЦІЙ СИСТЕМИ
+                </p>
+                <div class="log-container">
+                    <div class="log-entry">
+                        <span>
+                            <span class="log-time">[14:20:05]</span> 
+                            Реєстрація суб'єкта {{ client.name }} в базі даних
+                        </span>
+                        <span class="log-status status-success">УСПІШНО</span>
+                    </div>
+                    {% for card in cards %}
+                    <div class="log-entry">
+                        <span>
+                            <span class="log-time">[10:15:32]</span> 
+                            Активація рахунку {{ card.currency }} (•••• {{ card.card_number[-4:] }})
+                        </span>
+                        <span class="log-status status-opened">ВІДКРИТО</span>
+                    </div>
+                    {% if card.status == 'Заблокована' %}
+                    <div class="log-entry">
+                        <span>
+                            <span class="log-time">[СИСТЕМА]</span> 
+                            Примусове блокування шлюзу •••• {{ card.card_number[-4:] }}
+                        </span>
+                        <span class="log-status status-locked">ЗАБЛОКОВАНО</span>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="cyber-widget">
+                <p class="widget-label">
+                    <i class="fas fa-clock"></i> СИСТЕМНИЙ ЧАС
+                </p>
+                <div id="clock-profile">00:00:00</div>
+                <div style="text-align: center; font-family: 'Orbitron'; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 10px;" id="date-profile">
+                    <!-- Дата буде тут -->
+                </div>
+            </div>
+
+            <div class="cyber-widget">
+                <p class="widget-label">
+                    <i class="fas fa-satellite-dish"></i> КУРС ВАЛЮТ НБУ
+                </p>
+                <div id="rates-profile">
+                    <p style="font-size: 0.8rem; opacity: 0.5; text-align: center; font-family: 'Orbitron';">
+                        Отримання даних...
+                    </p>
+                </div>
+            </div>
+
+            <div class="cyber-widget">
+                <p class="widget-label">
+                    <i class="fas fa-user-cog"></i> КЕРУВАННЯ ПРОФІЛЕМ
+                </p>
+                <a href="/edit-client/{{ client.id }}" class="btn-cyber-action">
+                    <i class="fas fa-user-edit"></i> РЕДАГУВАТИ ПРОФІЛЬ
+                </a>
+                <a href="/delete-client/{{ client.id }}" class="btn-cyber-action btn-danger-cyber" onclick="return confirm('⚠️ УВАГА!\n\nВи дійсно хочете видалити клієнта та всі пов\'язані дані?\n\nЦю дію неможливо скасувати!')">
+                    <i class="fas fa-user-times"></i> ВИДАЛИТИ З БАЗИ
+                </a>
+            </div>
+
+            <a href="/clients" class="btn-cyber-action" style="border-color: rgba(255,255,255,0.3); color: #94a3b8;">
+                <i class="fas fa-arrow-left"></i> НАЗАД ДО СПИСКУ
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ЖИВИЙ ГОДИННИК З ДАТОЮ
+    function updateClock() {
+        const now = new Date();
+        const timeEl = document.getElementById('clock-profile');
+        const dateEl = document.getElementById('date-profile');
+        
+        if(timeEl) {
+            timeEl.textContent = now.toLocaleTimeString('uk-UA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        if(dateEl) {
+            dateEl.textContent = now.toLocaleDateString('uk-UA', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // КУРС ВАЛЮТ НБУ
+    async function getRates() {
+        const target = document.getElementById('rates-profile');
+        try {
+            const res = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');
+            const data = await res.json();
+            const usd = data.find(i => i.cc === 'USD').rate.toFixed(2);
+            const eur = data.find(i => i.cc === 'EUR').rate.toFixed(2);
+            
+            target.innerHTML = `
+                <div class="rate-item">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-dollar-sign" style="color: var(--success);"></i>
+                        USD
+                    </span>
+                    <strong class="rate-value">${usd} ₴</strong>
+                </div>
+                <div class="rate-item">
+                    <span style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-euro-sign" style="color: #818cf8;"></i>
+                        EUR
+                    </span>
+                    <strong class="rate-value" style="color: #818cf8;">${eur} ₴</strong>
+                </div>
+            `;
+        } catch (e) { 
+            target.innerHTML = '<p style="color:var(--error); font-size:0.75rem; text-align: center;">⚠️ Помилка зв\'язку з НБУ</p>'; 
+        }
+    }
+    getRates();
+    // Оновлюємо курс кожні 5 хвилин
+    setInterval(getRates, 300000);
+
+    // 3D ЕФЕКТ ДЛЯ КАРТОК (як у Монобанк)
+    document.querySelectorAll('.bank-card').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            
+            card.style.transform = `
+                perspective(1000px)
+                rotateX(${rotateX}deg)
+                rotateY(${rotateY}deg)
+                translateY(-10px)
+                scale(1.02)
+            `;
+            
+            // Голографічний ефект
+            const overlay = card.querySelector('.holographic-overlay');
+            if(overlay) {
+                const percentX = (x / rect.width) * 100;
+                const percentY = (y / rect.height) * 100;
+                overlay.style.setProperty('--x', percentX + '%');
+                overlay.style.setProperty('--y', percentY + '%');
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+</script>
+{% endblock %}

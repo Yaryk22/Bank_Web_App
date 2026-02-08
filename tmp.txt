@@ -1,0 +1,23 @@
+d92ee21be68fab416421f86f457536de
+
+
+projectappapitoken
+
+
+kF1y33eqHTj-Io0oH3D2n_kKUtgtNk1hT4I11nHq
+
+curl "https://api.cloudflare.com/client/v4/accounts/d92ee21be68fab416421f86f457536de/tokens/verify" -H "Authorization: Bearer kF1y33eqHTj-Io0oH3D2n_kKUtgtNk1hT4I11nHq"
+
+curl "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel" 
+  --request POST 
+  --header "Authorization: Bearer $CLOUDFLARE_API_TOKEN" 
+  --json '{
+    "name": "api-tunnel",
+    "config_src": "cloudflare"
+  }'
+
+
+
+  curl "https://api.cloudflare.com/client/v4/accounts/d92ee21be68fab416421f86f457536de/cfd_tunnel" --request POST --header "Authorization: Bearer kF1y33eqHTj-Io0oH3D2n_kKUtgtNk1hT4I11nHq" --json '{"name": "projectappapitoken", "config_src": "cloudflare"}'
+
+  {"success":true,"errors":[],"messages":[],"result":{"id":"9b38ce9c-64e8-44e5-9d5a-bfc4d851f7fa","account_tag":"d92ee21be68fab416421f86f457536de","created_at":"2026-02-08T02:29:43.905313Z","deleted_at":null,"name":"tunnel","connections":[],"conns_active_at":null,"conns_inactive_at":"2026-02-08T02:29:43.905313Z","tun_type":"cfd_tunnel","metadata":{},"status":"inactive","remote_config":true,"config_src":"cloudflare","credentials_file":{"AccountTag":"d92ee21be68fab416421f86f457536de","TunnelID":"9b38ce9c-64e8-44e5-9d5a-bfc4d851f7fa","TunnelName":"tunnel","TunnelSecret":"pxd4WDeK/c4319MmBvwsqAnEV4E+/OBoVdbNJ4KRSbu/0uvoZlOaUYI5onyE6IurixFU2/PSjd2Ch5t5rdeDcw=="},"token":"eyJhIjoiZDkyZWUyMWJlNjhmYWI0MTY0MjFmODZmNDU

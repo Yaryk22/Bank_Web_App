@@ -1,0 +1,481 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .about-header {
+        text-align: center;
+        margin-bottom: 60px;
+        animation: slideDown 0.8s ease-out;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        color: #fff;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, #fff, var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .subtitle {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+        letter-spacing: 3px;
+        font-family: 'Orbitron';
+    }
+
+    /* КАРТКИ З ІНФОРМАЦІЄЮ */
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .info-card {
+        padding: 35px;
+        position: relative;
+        overflow: hidden;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        transition: 0.3s;
+    }
+
+    .info-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
+        transition: 0.6s;
+    }
+
+    .info-card:hover::before {
+        left: 100%;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        border-color: var(--accent);
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+        color: var(--accent);
+        margin-bottom: 20px;
+        display: inline-block;
+        transition: all 0.4s ease;
+    }
+
+    .info-card:hover .card-icon {
+        transform: scale(1.2) rotate(10deg);
+        text-shadow: 0 0 30px var(--accent-glow);
+    }
+
+    .card-title {
+        font-family: 'Orbitron';
+        color: var(--accent);
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+        letter-spacing: 1px;
+    }
+
+    .card-content {
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.8;
+        font-size: 0.9rem;
+    }
+
+    /* СПИСОК ПАРТНЕРІВ */
+    .partners-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 20px;
+    }
+
+    .partners-list li {
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .partners-list li:hover {
+        padding-left: 15px;
+        background: rgba(56, 189, 248, 0.05);
+        border-left: 3px solid var(--accent);
+    }
+
+    .partner-icon {
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .partner-name {
+        font-weight: 600;
+        color: #fff;
+        min-width: 120px;
+    }
+
+    .partner-details {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.85rem;
+    }
+
+    /* КОНТАКТНИЙ БЛОК */
+    .contact-section {
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(2, 6, 23, 0.9));
+        border: 2px solid var(--accent);
+        border-radius: 20px;
+        padding: 40px;
+        margin-top: 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .contact-section::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, var(--accent-glow), transparent);
+        transform: translate(-50%, -50%);
+        filter: blur(80px);
+        opacity: 0.3;
+        z-index: -1;
+    }
+
+    .contact-title {
+        font-family: 'Orbitron';
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .contact-item {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .contact-item:hover {
+        transform: translateY(-5px);
+        border-color: var(--accent);
+        box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+    }
+
+    .contact-label {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        font-family: 'Orbitron';
+        letter-spacing: 1px;
+    }
+
+    .contact-value {
+        font-size: 1.3rem;
+        color: var(--accent);
+        font-weight: 700;
+        font-family: 'Orbitron';
+    }
+
+    .contact-details {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 15px;
+        padding: 25px;
+        text-align: left;
+        font-size: 0.9rem;
+        line-height: 2;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .contact-details p {
+        margin: 0;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .contact-details p:last-child {
+        border-bottom: none;
+    }
+
+    .contact-icon {
+        color: var(--accent);
+        font-size: 1.1rem;
+    }
+
+    /* КНОПКА */
+    .btn-primary {
+        display: inline-block;
+        background: var(--accent);
+        color: #000;
+        padding: 18px 40px;
+        border-radius: 50px;
+        text-decoration: none;
+        font-family: 'Orbitron';
+        font-weight: 700;
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        box-shadow: 0 0 30px var(--accent-glow);
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        margin-top: 20px;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 50px var(--accent-glow);
+        letter-spacing: 4px;
+    }
+
+    /* ТАЙМЛАЙН (СТАТИСТИКА) */
+    .stats-banner {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 40px 0;
+    }
+
+    .stat-card {
+        text-align: center;
+        padding: 30px;
+        background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(2, 6, 23, 0.8));
+        border: 1px solid var(--accent);
+        border-radius: 15px;
+        transition: all 0.4s ease;
+        animation: statPulse 3s ease-in-out infinite;
+    }
+
+    .stat-card:nth-child(2) {
+        animation-delay: 0.5s;
+    }
+
+    .stat-card:nth-child(3) {
+        animation-delay: 1s;
+    }
+
+    @keyframes statPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
+        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(56, 189, 248, 0.4); }
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-family: 'Orbitron';
+        color: var(--accent);
+        font-weight: 900;
+        text-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 10px;
+        letter-spacing: 1px;
+        font-family: 'Orbitron';
+    }
+</style>
+
+<div class="content-wrapper">
+    <!-- Заголовок -->
+    <div class="about-header">
+        <h1 class="main-title">КРИСТАЛБАНК</h1>
+        <p class="subtitle">[ АВТОМАТИЗОВАНА СИСТЕМА УПРАВЛІННЯ v2.0 ]</p>
+    </div>
+
+    <!-- Статистика -->
+    <div class="stats-banner">
+        <div class="stat-card">
+            <div class="stat-value">38</div>
+            <div class="stat-label">ВІДДІЛЕНЬ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">24</div>
+            <div class="stat-label">МІСТА УКРАЇНИ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">2014</div>
+            <div class="stat-label">РІК ЗАСНУВАННЯ</div>
+        </div>
+    </div>
+
+    <!-- Інформаційні картки -->
+    <div class="info-grid">
+        <div class="info-card">
+            <div class="card-icon">🏦</div>
+            <h3 class="card-title">ПРО УСТАНОВУ</h3>
+            <div class="card-content">
+                <p><strong>КРИСТАЛБАНК</strong> — перший в Україні банк, створений ФГВФО зі статусом «Перехідного банку» у 2014 році.</p>
+                <p style="margin-top: 15px;">З березня 2015 року Банк працює за повною ліцензією, надаючи широкий спектр банківських послуг фізичним та юридичним особам.</p>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-icon">🛡️</div>
+            <h3 class="card-title">БЕЗПЕКА ТА ГАРАНТІЇ</h3>
+            <div class="card-content">
+                <p>Учасник Фонду гарантування вкладів фізичних осіб</p>
+                <p><strong>Свідоцтво №229</strong> від 20.08.2025</p>
+                <p style="margin-top: 15px;">Ваші кошти захищені державою відповідно до законодавства України.</p>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="card-icon">🌐</div>
+            <h3 class="card-title">МІЖНАРОДНІ ПЕРЕКАЗИ</h3>
+            <div class="card-content">
+                <p>Підтримка провідних систем:</p>
+                <ul style="list-style: none; padding: 0; margin-top: 10px;">
+                    <li>• Western Union</li>
+                    <li>• MoneyGram</li>
+                    <li>• RIA Money Transfer</li>
+                    <li>• SWIFT</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Партнерські мережі -->
+    <div class="info-card" style="margin-bottom: 30px;">
+        <div class="card-icon">💳</div>
+        <h3 class="card-title">ПАРТНЕРСЬКІ ПЛАТІЖНІ МЕРЕЖІ</h3>
+        <ul class="partners-list">
+            <li>
+                <span class="partner-icon"></span>
+                <span class="partner-name">MasterCard</span>
+                <span class="partner-details">Реєстр НБУ від 13.10.2015</span>
+            </li>
+            <li>
+                <span class="partner-icon"></span>
+                <span class="partner-name">VISA</span>
+                <span class="partner-details">Реєстр НБУ від 07.02.2025</span>
+            </li>
+            <li>
+                <span class="partner-icon"></span>
+                <span class="partner-name">ПРОСТІР</span>
+                <span class="partner-details">Договір К-7858</span>
+            </li>
+            <li>
+                <span class="partner-icon"></span>
+                <span class="partner-name">PaySystems</span>
+                <span class="partner-details">Реєстр НБУ від 16.02.2024</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Контактна інформація -->
+    <div class="contact-section">
+        <h2 class="contact-title">
+            <i class="fas fa-headset"></i> Контакт-Центр
+        </h2>
+        
+        <div class="contact-grid">
+            <div class="contact-item">
+                <div class="contact-label">Дзвінки по Україні</div>
+                <div class="contact-value">0 800 50 55 99</div>
+                <small style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Безкоштовно</small>
+            </div>
+            <div class="contact-item">
+                <div class="contact-label">Міжнародні дзвінки</div>
+                <div class="contact-value">+38 (044) 590 45 95</div>
+                <small style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">24/7</small>
+            </div>
+        </div>
+
+        <div class="contact-details">
+            <p>
+                <i class="fas fa-map-marker-alt contact-icon"></i>
+                <span><strong>Юридична адреса:</strong> 04053, м. Київ, вул. Кудрявський узвіз, 2</span>
+            </p>
+            <p>
+                <i class="fas fa-envelope contact-icon"></i>
+                <span><strong>Для листування:</strong> 01133, м. Київ, б-р Лесі Українки, 30В</span>
+            </p>
+            <p>
+                <i class="fas fa-at contact-icon"></i>
+                <span><strong>Email:</strong> info@crystalbank.com.ua</span>
+            </p>
+            <p>
+                <i class="fas fa-building contact-icon"></i>
+                <span><strong>Оператор СЕП:</strong> Національний банк України (вул. Інститутська, 9)</span>
+            </p>
+        </div>
+
+        <a href="https://crystalbank.com.ua/" target="_blank" class="btn-primary">
+            <i class="fas fa-external-link-alt"></i> Відкрити Офіційний Портал
+        </a>
+    </div>
+</div>
+
+<script>
+    // Анімація чисел при прокрутці
+    const observerOptions = {
+        threshold: 0.5
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const target = entry.target.querySelector('.stat-value');
+                const finalValue = parseInt(target.textContent);
+                animateValue(target, 0, finalValue, 2000);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.stat-card').forEach(card => {
+        observer.observe(card);
+    });
+
+    function animateValue(element, start, end, duration) {
+        const range = end - start;
+        const increment = range / (duration / 16);
+        let current = start;
+
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= end) {
+                element.textContent = end;
+                clearInterval(timer);
+            } else {
+                element.textContent = Math.floor(current);
+            }
+        }, 16);
+    }
+</script>
+{% endblock %}

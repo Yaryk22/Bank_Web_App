@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КРИСТАЛБАНК — Автоматизована Система</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.6);
+            --bg-dark-main: #0b1222;
+            --sidebar-w: 320px;
+            --card-bg-dark: rgba(2, 6, 23, 0.88);
+            --glass-border: rgba(56, 189, 248, 0.25);
+            --success: #00ff88;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            color: #f1f5f9;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #0b1222;
+            position: relative;
+        }
+
+        /* АНІМОВАНИЙ ФОН */
+        .cyber-background {
+            position: fixed;
+            inset: 0;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 0%, #172554 0%, #020617 80%);
+            overflow: hidden;
+        }
+
+        #cyber-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(30px);
+            border-right: 2px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            box-shadow: 10px 0 50px rgba(0, 0, 0, 0.7);
+        }
+
+        .sidebar-header {
+            padding: 50px 40px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+            position: relative;
+        }
+
+        .brand-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand-name span {
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .brand-subtitle {
+            font-size: 0.65rem;
+            color: var(--accent);
+            margin-top: 8px;
+            letter-spacing: 3px;
+            font-family: 'Orbitron';
+            opacity: 0.8;
+        }
+
+        /* НАВІГАЦІЯ */
+        .nav-menu {
+            padding: 40px 0;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            padding: 22px 40px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 5px solid var(--accent);
+        }
+
+        /* КНОПКА ВИХОДУ */
+        .sidebar-footer {
+            padding: 20px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logout-btn {
+            color: var(--error) !important;
+            opacity: 0.8;
+        }
+
+        .logout-btn:hover {
+            opacity: 1;
+            background: rgba(239, 68, 68, 0.1) !important;
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        /* MAIN */
+        .main-content {
+            margin-left: var(--sidebar-w);
+            flex-grow: 1;
+            padding: 50px;
+            min-height: 100vh;
+            z-index: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="cyber-background">
+    <canvas id="cyber-canvas"></canvas>
+</div>
+
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="brand-name">КРИСТАЛ<span>БАНК</span></a>
+        <div class="brand-subtitle">EST. 2024 • СИСТЕМА v2.0</div>
+    </div>
+
+    <nav class="nav-menu">
+        <a href="/clients" class="nav-link"><i class="fas fa-users"></i>КЛІЄНТИ</a>
+        <a href="/requests" class="nav-link"><i class="fas fa-file-invoice"></i>ЗАЯВКИ</a>
+        <a href="/add-client" class="nav-link"><i class="fas fa-user-plus"></i>НОВИЙ КЛІЄНТ</a>
+        <a href="/add-request" class="nav-link"><i class="fas fa-plus-square"></i>НОВА ЗАЯВКА</a>
+        <a href="/about" class="nav-link"><i class="fas fa-info-circle"></i>ПРО СИСТЕМУ</a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/logout" class="nav-link logout-btn">
+            <i class="fas fa-sign-out-alt"></i>ВИЙТИ
+        </a>
+    </div>
+</aside>
+
+<main class="main-content">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+    const canvas = document.getElementById('cyber-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.size = Math.random() * 1.5 + 0.5;
+            this.speedX = Math.random() * 0.3 - 0.15;
+            this.speedY = Math.random() * 0.3 - 0.15;
+        }
+
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            if (this.x < 0) this.x = canvas.width;
+            if (this.x > canvas.width) this.x = 0;
+            if (this.y < 0) this.y = canvas.height;
+            if (this.y > canvas.height) this.y = 0;
+        }
+
+        draw() {
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillRect(this.x, this.y, 2, 2); 
+        }
+    }
+
+    const particles = Array.from({ length: 120 }, () => new Particle());
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            p.update();
+            p.draw();
+        });
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    // Авто-активація посилань
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+</script>
+
+</body>
+</html>

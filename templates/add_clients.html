@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="content-wrapper" style="animation: fadeIn 0.8s ease-out; padding-top: 20px;">
+    <div class="profile-grid">
+        
+        <div class="main-column">
+            <div class="form-container-wrapper">
+                <h2 class="form-title">
+                    <i class="fas fa-user-plus" style="margin-right: 15px;"></i>РЕЄСТРАЦІЯ КЛІЄНТА
+                </h2>
+
+                <div class="bank-card-form full-height-card">
+                    <p style="opacity: 0.5; font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 35px; color: var(--accent); font-family: 'Orbitron';">
+                        [ SYSTEM_ACTION: NEW_CLIENT_REGISTRATION ]
+                    </p>
+
+                    <form action="{{ url_for('add_client') }}" method="POST">
+                        <div class="input-group">
+                            <label class="label">ПІБ КЛІЄНТА / НАЙМЕНУВАННЯ</label>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                placeholder="Введіть повне ім'я..." 
+                                class="cyber-input" 
+                                required
+                                pattern="^[a-zA-Zа-яА-ЯіІїЇєЄґҐ\s]+$"
+                                title="Використовуйте лише літери (українські або англійські) та пробіли. Цифри заборонені."
+                            >
+                        </div>
+
+                        <div class="input-group">
+                            <label class="label">КОНТАКТНИЙ ТЕЛЕФОН</label>
+                            <input 
+                                type="text" 
+                                name="phone" 
+                                placeholder="+380..." 
+                                class="cyber-input" 
+                                required
+                                pattern="^\+(?!7)[0-9]{7,15}$"
+                                title="Номер має починатися з '+' (крім +7) і містити лише цифри (від 7 до 15 знаків)."
+                            >
+                        </div>
+
+                        <div class="input-group">
+                            <label class="label">ТИП КЛІЄНТСЬКОГО РАХУНКУ</label>
+                            <select name="type" class="cyber-input">
+                                <option value="Фізична особа">Фізична особа</option>
+                                <option value="Юридична особа">Юридична особа</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-top: auto; padding-top: 40px;">
+                            <button type="submit" class="btn-submit-cyber">
+                                <i class="fas fa-save" style="margin-right: 10px;"></i> ВНЕСТИ В БАЗУ ДАНИХ
+                            </button>
+                            <a href="/clients" class="back-link-minimal">
+                                ◀ ПОВЕРНУТИСЯ ДО СПИСКУ
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="cyber-widget">
+                <p class="widget-label"><i class="fas fa-clock"></i> ЧАС РЕЄСТРАЦІЇ</p>
+                <div id="clock-add" style="font-family: 'Orbitron'; font-size: 1.5rem; color: var(--accent); text-shadow: 0 0 15px var(--accent-glow); font-weight: bold;">
+                    00:00:00
+                </div>
+            </div>
+
+            <div class="cyber-widget">
+                <p class="widget-label"><i class="fas fa-coins"></i> КУРС ВАЛЮТ (НБУ)</p>
+                <div id="rates-add">
+                    <p class="label" style="font-size: 0.6rem; opacity: 0.5;">Синхронізація...</p>
+                </div>
+            </div>
+
+            <div class="cyber-widget" style="border-left: 2px solid var(--accent); background: rgba(0, 255, 136, 0.03);">
+                <p class="widget-label" style="color: var(--accent);"><i class="fas fa-info-circle"></i> ІНФО</p>
+                <p style="color: #64748b; font-size: 0.7rem; line-height: 1.5; margin: 0;">
+                    Після реєстрації клієнт зможе миттєво оформлювати заявки на банківські послуги.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateAddClock() {
+        const el = document.getElementById('clock-add');
+        if(el) el.textContent = new Date().toLocaleTimeString();
+    }
+    setInterval(updateAddClock, 1000); 
+    updateAddClock();
+
+    async function getAddRates() {
+        const target = document.getElementById('rates-add');
+        if(!target) return;
+        try {
+            const res = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');
+            const data = await res.json();
+            const usd = data.find(i => i.cc === 'USD').rate.toFixed(2);
+            const eur = data.find(i => i.cc === 'EUR').rate.toFixed(2);
+            target.innerHTML = `
+                <div class="exchange-rate"><span>USD</span><strong style="color: #00ff88;">${usd}</strong></div>
+                <div class="exchange-rate"><span>EUR</span><strong style="color: #00ff88;">${eur}</strong></div>`;
+        } catch (e) { target.innerHTML = 'API Error'; }
+    }
+    getAddRates();
+</script>
+
+<style>
+    .profile-grid { display: grid; grid-template-columns: 1fr 320px; gap: 40px; align-items: start; }
+    .main-column { display: flex; justify-content: center; width: 100%; }
+    .form-container-wrapper { width: 100%; max-width: 550px; }
+    .form-title { font-family: 'Orbitron'; color: var(--accent); margin-bottom: 25px; letter-spacing: 2px; font-size: 1.5rem; text-transform: uppercase; }
+    
+    .bank-card-form { 
+        background: rgba(15, 23, 42, 0.65); 
+        border: 1px solid rgba(255, 255, 255, 0.08); 
+        border-radius: 24px; 
+        padding: 50px; 
+        backdrop-filter: blur(20px); 
+        box-shadow: 0 30px 60px rgba(0,0,0,0.5); 
+    }
+    
+    .full-height-card { min-height: 600px; display: flex; flex-direction: column; }
+    .input-group { margin-bottom: 30px; }
+    .label { font-family: 'Orbitron'; font-size: 0.65rem; color: var(--accent); margin-bottom: 12px; display: block; letter-spacing: 1px; }
+    
+    .cyber-input { 
+        width: 100%; 
+        background: rgba(0, 0, 0, 0.4); 
+        border: 1px solid rgba(255, 255, 255, 0.1); 
+        border-radius: 12px; 
+        color: #fff; 
+        padding: 16px; 
+        font-family: 'Orbitron'; 
+        transition: 0.3s; 
+    }
+    .cyber-input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 20px rgba(0, 255, 136, 0.15); }
+
+    /* --- НОВІ СТИЛІ ДЛЯ КНОПКИ --- */
+    .btn-submit-cyber {
+        background: transparent;
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        padding: 16px 30px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        width: 100%;
+        display: block;
+    }
+
+    .btn-submit-cyber:hover {
+        color: #020617;
+        box-shadow: 0 10px 20px rgba(56, 189, 248, 0.3), inset 0 0 0 50px var(--accent);
+        transform: translateY(-3px);
+        letter-spacing: 4px;
+    }
+
+    .btn-submit-cyber::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: 0.6s;
+    }
+
+    .btn-submit-cyber:hover::before {
+        left: 100%;
+    }
+
+    .back-link-minimal {
+        display: block;
+        text-align: center;
+        margin-top: 25px;
+        color: #64748b;
+        text-decoration: none;
+        font-family: 'Orbitron';
+        font-size: 0.7rem;
+        transition: 0.3s;
+        letter-spacing: 1px;
+    }
+
+    .back-link-minimal:hover {
+        color: var(--accent);
+        letter-spacing: 2px;
+    }
+    /* ----------------------------- */
+
+    .cyber-widget { 
+        background: rgba(255, 255, 255, 0.03); 
+        border: 1px solid rgba(255, 255, 255, 0.05); 
+        border-radius: 16px; 
+        padding: 25px; 
+        margin-bottom: 25px; 
+    }
+    .widget-label { font-family: 'Orbitron'; font-size: 0.7rem; color: var(--accent); margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+    .exchange-rate { display: flex; justify-content: space-between; margin-bottom: 12px; font-family: 'Orbitron'; font-size: 1rem; color: #fff; }
+</style>
+{% endblock %}
