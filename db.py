@@ -7,16 +7,13 @@ import shutil
 from cryptography.fernet import Fernet
 import json
 
-# Визначаємо назви файлів та директорій для роботи системи
 DB_NAME = "bank.db"
 BACKUP_DIR = "backups"
 CONFIG_FILE = "config.json"
 
 # ========== ШИФРУВАННЯ ==========
-
 def get_or_create_key():
-    """Отримання або створення ключа шифрування для захисту конфіденційних даних"""
-    # Якщо конфігураційного файлу немає, створюємо новий ключ
+    """Отримання або створення ключа шифрування"""
     if not os.path.exists(CONFIG_FILE):
         key = Fernet.generate_key()
         config = {"encryption_key": key.decode()}
@@ -24,55 +21,47 @@ def get_or_create_key():
             json.dump(config, f)
         return key
     
-    # Якщо файл є, зчитуємо існуючий ключ
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
         return config["encryption_key"].encode()
 
-# Ініціалізуємо об'єкт для шифрування
 ENCRYPTION_KEY = get_or_create_key()
 cipher_suite = Fernet(ENCRYPTION_KEY)
 
 def encrypt_data(data):
-    """Шифрування вхідного рядка"""
+    """Шифрування даних"""
     if data is None:
         return None
     return cipher_suite.encrypt(data.encode()).decode()
 
 def decrypt_data(encrypted_data):
-    """Дешифрування даних, якщо вони були зашифровані"""
+    """Дешифрування даних"""
     if encrypted_data is None:
         return None
     try:
         return cipher_suite.decrypt(encrypted_data.encode()).decode()
     except:
-        # Якщо дані не зашифровані (або ключ інший), повертаємо як є
-        return encrypted_data
+        return encrypted_data  # Якщо не зашифровано
 
 # ========== DATABASE CONNECTION ==========
-
 def get_db():
-    """Створення підключення до SQLite з додатковими налаштуваннями продуктивності"""
+    """Отримання підключення до бази даних"""
     conn = sqlite3.connect(DB_NAME, check_same_thread=False)
-    # Дозволяє звертатися до колонок за іменами, а не тільки за індексами
     conn.row_factory = sqlite3.Row
-    # Вмикаємо підтримку зовнішніх ключів (Foreign Keys)
     conn.execute("PRAGMA foreign_keys = ON")
-    # Режим WAL дозволяє читати та писати в базу одночасно без блокувань
-    conn.execute("PRAGMA journal_mode = WAL")
+    conn.execute("PRAGMA journal_mode = WAL")  # Write-Ahead Logging для кращої продуктивності
     return conn
 
 # ========== INITIALIZATION ==========
-
 def init_db():
-    """Створення структури таблиць, індексів та тригерів КристалБанку"""
+    """Ініціалізація бази даних з покращеною структурою"""
     print("🚀 Ініціалізація бази даних КристалБанк...")
     
-    # Створюємо папку для резервних копій, якщо вона відсутня
+    # Створення директорії для бекапів
     os.makedirs(BACKUP_DIR, exist_ok=True)
     
     with get_db() as db:
-        # Таблиця працівників з ролями (адмін, оператор, менеджер)
+        # ========== ТАБЛИЦЯ СПІВРОБІТНИКІВ ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS employees (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,7 +73,7 @@ def init_db():
             role TEXT DEFAULT 'operator' CHECK(role IN ('admin', 'operator', 'manager'))
         )""")
 
-        # Таблиця клієнтів (фізичні та юридичні особи)
+        # ========== ТАБЛИЦЯ КЛІЄНТІВ ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS clients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -95,7 +84,7 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""")
 
-        # Таблиця банківських заявок клієнтів
+        # ========== ТАБЛИЦЯ ЗАЯВОК ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS requests (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -107,7 +96,7 @@ def init_db():
             FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE
         )""")
 
-        # Таблиця банківських карток з прив'язкою до клієнта
+        # ========== ТАБЛИЦЯ КАРТОК ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS cards (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -121,7 +110,7 @@ def init_db():
             FOREIGN KEY (client_id) REFERENCES clients (id) ON DELETE CASCADE
         )""")
 
-        # Таблиця фінансових транзакцій
+        # ========== ТАБЛИЦЯ ТРАНЗАКЦІЙ ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -133,7 +122,7 @@ def init_db():
             FOREIGN KEY (card_id) REFERENCES cards (id) ON DELETE CASCADE
         )""")
 
-        # Лог дій для безпеки (аудит)
+        # ========== ТАБЛИЦЯ ЛОГІВ (АУДИТ) ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS audit_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -145,7 +134,7 @@ def init_db():
             ip_address TEXT
         )""")
 
-        # Система внутрішніх повідомлень/нотифікацій
+        # ========== ТАБЛИЦЯ НОТИФІКАЦІЙ ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -156,7 +145,7 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""")
 
-        # Таблиця для зберігання глобальних конфігурацій системи
+        # ========== ТАБЛИЦЯ НАЛАШТУВАНЬ ==========
         db.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -165,7 +154,7 @@ def init_db():
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )""")
 
-        # Створення індексів для швидкого пошуку по базі
+        # ========== ІНДЕКСИ ==========
         indexes = [
             "CREATE INDEX IF NOT EXISTS idx_clients_phone ON clients(phone)",
             "CREATE INDEX IF NOT EXISTS idx_clients_type ON clients(type)",
@@ -187,7 +176,8 @@ def init_db():
         for index in indexes:
             db.execute(index)
 
-        # Створення тригерів для автоматичного оновлення дати зміни запису (updated_at)
+        # ========== ТРИГЕРИ ==========
+        # Автоматичне оновлення updated_at
         triggers = [
             """
             CREATE TRIGGER IF NOT EXISTS update_clients_timestamp 
@@ -215,13 +205,13 @@ def init_db():
         for trigger in triggers:
             db.execute(trigger)
 
-        # Перевірка наявності адміністратора, якщо немає — створюємо дефолтного
+        # ========== СТВОРЕННЯ АДМІНІСТРАТОРА ==========
         existing_admin = db.execute(
             "SELECT id FROM employees WHERE username = 'admin'"
         ).fetchone()
 
         if not existing_admin:
-            admin_password = generate_password_hash("admin123")
+            admin_password = generate_password_hash("admin123")  # ЗМІНІТЬ на продакшені!
             db.execute(
                 "INSERT INTO employees (username, password, role) VALUES (?, ?, ?)",
                 ("admin", admin_password, "admin")
@@ -231,7 +221,7 @@ def init_db():
         else:
             print("ℹ️  Адміністратор вже існує")
 
-        # Додавання стандартних налаштувань системи
+        # ========== ПОЧАТКОВІ НАЛАШТУВАННЯ ==========
         settings_defaults = [
             ("max_cards_per_client", "3"),
             ("default_currency", "UAH"),
@@ -245,15 +235,15 @@ def init_db():
             if not existing:
                 db.execute("INSERT INTO settings (key, value) VALUES (?, ?)", (key, value))
 
-        # Наповнюємо базу тестовими даними (якщо вона порожня)
+        # ========== ТЕСТОВІ ДАНІ ==========
         create_sample_data(db)
 
         db.commit()
         print("✅ База даних успішно ініціалізована!")
-        # ========== SAMPLE DATA ==========
+
+# ========== SAMPLE DATA ==========
 def create_sample_data(db):
-    """Створення набору тестових даних для демонстрації можливостей системи"""
-    # Перевіряємо, чи є вже клієнти, щоб не дублювати дані при кожному запуску
+    """Створення тестових даних для розробки"""
     client_count = db.execute("SELECT COUNT(*) FROM clients").fetchone()[0]
     
     if client_count > 0:
@@ -262,7 +252,7 @@ def create_sample_data(db):
 
     print("📝 Створення тестових даних...")
 
-    # Додаємо тестових співробітників з різними рівнями доступу
+    # Додавання операторів
     operators = [
         ("operator1", generate_password_hash("1234"), "operator"),
         ("manager1", generate_password_hash("1234"), "manager")
@@ -274,9 +264,9 @@ def create_sample_data(db):
             (username, password, role)
         )
 
-    # Список тестових клієнтів (фізособи та компанії)
+    # Додавання клієнтів
     test_clients = [
-        ("Подлецький Максим Іванович", "+380501234567", "Фізична особа"),
+        ("Полецький Максим Іванович", "+380501234567", "Фізична особа"),
         ("Олійник Олександр ", "+380672345678", "Фізична особа"),
         ("Сидоренко Олена Михайлівна", "+380933456789", "Фізична особа"),
         ("ТОВ 'КРИСТАЛ ГРУП'", "+380443456789", "Юридична особа"),
@@ -289,16 +279,16 @@ def create_sample_data(db):
             (name, phone, client_type)
         )
 
-    # Генерація випадкових карток для кожного клієнта
+    # Додавання карток
     import random
     clients = db.execute("SELECT id FROM clients").fetchall()
     
     currencies = ['UAH', 'USD', 'EUR']
     for client in clients:
-        # Кожен клієнт отримує 1 або 2 картки в різних валютах
+        # Кожен клієнт отримає 1-2 картки
         num_cards = random.randint(1, 2)
         used_currencies = []
-        
+
         for _ in range(num_cards):
             available = [c for c in currencies if c not in used_currencies]
             if not available:
@@ -307,10 +297,8 @@ def create_sample_data(db):
             currency = random.choice(available)
             used_currencies.append(currency)
             
-            # Генеруємо форматний номер картки
             card_number = f"4441 {random.randint(1000,9999)} {random.randint(1000,9999)} {random.randint(1000,9999)}"
             
-            # Встановлюємо початковий баланс залежно від валюти
             if currency == 'UAH':
                 balance = random.randint(1000, 50000)
             elif currency == 'USD':
@@ -318,19 +306,18 @@ def create_sample_data(db):
             else:
                 balance = random.randint(50, 2000)
             
-            # Зберігаємо картку в базу
             cursor = db.execute(
                 "INSERT INTO cards (client_id, card_number, balance, currency) VALUES (?, ?, ?, ?)",
                 (client['id'], card_number, balance, currency)
             )
             
-            # Створюємо запис про першу транзакцію (поповнення) для історії
+            # Додаємо початкову транзакцію
             db.execute(
                 "INSERT INTO transactions (card_id, amount, type, description) VALUES (?, ?, 'Поповнення', 'Початковий баланс')",
                 (cursor.lastrowid, balance)
             )
 
-    # Додаємо кілька прикладів заявок на банківські послуги
+    # Додавання заявок
     test_requests = [
         (1, "Відкриття депозиту", "Нова"),
         (2, "Оформлення кредиту", "В обробці"),
@@ -349,7 +336,7 @@ def create_sample_data(db):
 
 # ========== LOGGING ==========
 def log_action(user, action, table_name=None, record_id=None, ip_address=None):
-    """Фіксація дій користувача в таблиці аудиту для безпеки"""
+    """Логування дій користувачів для аудиту"""
     try:
         with get_db() as db:
             db.execute(
@@ -361,14 +348,12 @@ def log_action(user, action, table_name=None, record_id=None, ip_address=None):
         print(f"⚠️  Помилка логування: {e}")
 
 def cleanup_old_logs(days=90):
-    """Автоматичне видалення застарілих записів логів та прочитаних сповіщень"""
+    """Очищення старих логів"""
     with get_db() as db:
-        # Видаляємо логи, старіші за вказану кількість днів
         deleted = db.execute(
             "DELETE FROM audit_log WHERE timestamp < datetime('now', '-{} days')".format(days)
         ).rowcount
         
-        # Видаляємо прочитані сповіщення через 30 днів
         db.execute(
             "DELETE FROM notifications WHERE is_read=1 AND created_at < datetime('now', '-30 days')"
         )
@@ -378,7 +363,7 @@ def cleanup_old_logs(days=90):
 
 # ========== STATISTICS ==========
 def get_db_stats():
-    """Збір повної статистики по базі даних для головного екрана"""
+    """Отримання статистики бази даних"""
     with get_db() as db:
         stats = {
             "clients": db.execute("SELECT COUNT(*) FROM clients").fetchone()[0],
@@ -401,7 +386,7 @@ def get_db_stats():
 
 # ========== BACKUP ==========
 def backup_database(backup_path=None):
-    """Створення резервної копії файлу бази даних з ротацією (зберігаємо лише 10 останніх)"""
+    """Створення резервної копії бази даних"""
     if backup_path is None:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_path = os.path.join(BACKUP_DIR, f"bank_backup_{timestamp}.db")
@@ -409,7 +394,7 @@ def backup_database(backup_path=None):
     try:
         shutil.copy2(DB_NAME, backup_path)
         
-        # Сортуємо існуючі бекапи та видаляємо найстаріші, якщо їх більше 10
+        # Зберігаємо тільки останні 10 бекапів
         backups = sorted([
             os.path.join(BACKUP_DIR, f) 
             for f in os.listdir(BACKUP_DIR) 
@@ -428,15 +413,16 @@ def backup_database(backup_path=None):
         raise
 
 def restore_database(backup_path):
-    """Відновлення бази даних з вибраного файлу бекапу"""
+    """Відновлення бази даних з резервної копії"""
     if not os.path.exists(backup_path):
         raise FileNotFoundError(f"Бекап не знайдено: {backup_path}")
     
     try:
-        # Перед відновленням про всяк випадок робимо бекап поточної (можливо пошкодженої) бази
+        # Створюємо бекап поточної БД перед відновленням
         current_backup = backup_database()
-        print(f"📦 Створено бекап поточної БД перед відновленням: {current_backup}")
+        print(f"📦 Створено бекап поточної БД: {current_backup}")
         
+        # Відновлюємо
         shutil.copy2(backup_path, DB_NAME)
         print(f"✅ База даних відновлена з: {backup_path}")
     except Exception as e:
@@ -445,13 +431,13 @@ def restore_database(backup_path):
 
 # ========== SETTINGS ==========
 def get_setting(key, default=None):
-    """Отримання значення налаштування з таблиці settings"""
+    """Отримання налаштування"""
     with get_db() as db:
         result = db.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
         return result['value'] if result else default
 
 def set_setting(key, value):
-    """Запис або оновлення налаштування в базі даних"""
+    """Збереження налаштування"""
     with get_db() as db:
         db.execute(
             "INSERT OR REPLACE INTO settings (key, value, updated_at) VALUES (?, ?, CURRENT_TIMESTAMP)",
@@ -461,16 +447,16 @@ def set_setting(key, value):
 
 # ========== AUTOMATED TASKS ==========
 def setup_automated_backup():
-    """Запуск фонових завдань: бекапи та очищення логів за розкладом"""
+    """Налаштування автоматичного бекапу (викликати при старті)"""
     from apscheduler.schedulers.background import BackgroundScheduler
     
     scheduler = BackgroundScheduler()
     
-    # Визначаємо інтервал бекапів з налаштувань бази
+    # Бекап кожні 24 години
     interval = int(get_setting('backup_interval_hours', 24))
     scheduler.add_job(backup_database, 'interval', hours=interval)
     
-    # Очищення логів раз на тиждень
+    # Очищення логів кожні 7 днів
     scheduler.add_job(cleanup_old_logs, 'interval', days=7)
     
     scheduler.start()
@@ -478,15 +464,13 @@ def setup_automated_backup():
 
 # ========== MAIN ==========
 if __name__ == "__main__":
-    # Головний блок запуску програми
     print("=" * 60)
     print("🏦 КРИСТАЛБАНК - СИСТЕМА УПРАВЛІННЯ ДАНИМИ v2.0")
     print("=" * 60)
     
-    # 1. Ініціалізація структури таблиць
     init_db()
     
-    # 2. Отримання та вивід аналітики по системі
+    # Виведення статистики
     stats = get_db_stats()
     print("\n📊 СТАТИСТИКА БАЗИ ДАНИХ:")
     print(f"   • Всього клієнтів: {stats['clients']} (Фіз: {stats['physical_clients']}, Юр: {stats['legal_clients']})")
@@ -499,7 +483,7 @@ if __name__ == "__main__":
     print(f"   • Розмір БД: {stats['db_size_mb']:.2f} MB")
     print("\n" + "=" * 60)
     
-    # 3. Створення контрольної точки (бекапу) при запуску, якщо це дозволено налаштуваннями
+    # Створення першого бекапу
     if get_setting('backup_enabled', '1') == '1':
         try:
             backup_database()
