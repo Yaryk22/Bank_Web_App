@@ -1,173 +1,202 @@
+<!-- 
+    БАЗОВИЙ ШАБЛОН (BASE.HTML)
+    Головний макет для всіх сторінок системи
+    Містить: sidebar, навігацію, анімований фон та глобальні стилі
+-->
+
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="uk">  <!-- Українська мова -->
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  <!-- Адаптивність для мобільних -->
     <title>КРИСТАЛБАНК — Автоматизована Система</title>
 
+    <!-- ========== ПІДКЛЮЧЕННЯ ЗОВНІШНІХ БІБЛІОТЕК ========== -->
+    <!-- Font Awesome - іконки (fas fa-user, fas fa-lock тощо) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts - шрифти Orbitron (кіберпанк) та Inter (основний текст) -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
+        /* ========== CSS ЗМІННІ (ГЛОБАЛЬНІ КОЛЬОРИ) ========== */
         :root {
-            --accent: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.6);
-            --bg-dark-main: #0b1222;
-            --sidebar-w: 320px;
-            --card-bg-dark: rgba(2, 6, 23, 0.88);
-            --glass-border: rgba(56, 189, 248, 0.25);
-            --success: #00ff88;
-            --warning: #fbbf24;
-            --error: #ef4444;
+            --accent: #38bdf8;                      /* Основний блакитний колір */
+            --accent-glow: rgba(56, 189, 248, 0.6); /* Свічення блакитного */
+            --bg-dark-main: #0b1222;                /* Темний фон */
+            --sidebar-w: 320px;                     /* Ширина sidebar */
+            --card-bg-dark: rgba(2, 6, 23, 0.88);   /* Фон карток */
+            --glass-border: rgba(56, 189, 248, 0.25); /* Колір рамок */
+            --success: #00ff88;                     /* Зелений (успіх) */
+            --warning: #fbbf24;                     /* Жовтий (попередження) */
+            --error: #ef4444;                       /* Червоний (помилка) */
         }
 
+        /* ========== ГЛОБАЛЬНИЙ RESET ========== */
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            box-sizing: border-box;  /* Padding та border включені у width/height */
         }
 
+        /* ========== ОСНОВНІ СТИЛІ BODY ========== */
         body {
-            color: #f1f5f9;
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: #0b1222;
+            color: #f1f5f9;                 /* Світло-сірий текст */
+            font-family: 'Inter', sans-serif; /* Основний шрифт */
+            display: flex;                  /* Flexbox для layout */
+            min-height: 100vh;              /* Мінімальна висота - вся висота екрану */
+            overflow-x: hidden;             /* Без горизонтальної прокрутки */
+            background: #0b1222;            /* Запасний темний фон */
             position: relative;
         }
 
-        /* АНІМОВАНИЙ ФОН */
+        /* ========== АНІМОВАНИЙ ФОН (CANVAS) ========== */
         .cyber-background {
-            position: fixed;
-            inset: 0;
-            z-index: -2;
+            position: fixed;                /* Фіксований (не прокручується) */
+            inset: 0;                       /* Займає весь екран (top:0, right:0, bottom:0, left:0) */
+            z-index: -2;                    /* Під всім контентом */
+            /* Радіальний градієнт від синього до чорного */
             background: radial-gradient(circle at 50% 0%, #172554 0%, #020617 80%);
             overflow: hidden;
         }
 
+        /* Canvas для анімації частинок */
         #cyber-canvas {
             position: absolute;
             inset: 0;
             z-index: -1;
         }
 
-        /* SIDEBAR */
+        /* ========== SIDEBAR (БОКОВА ПАНЕЛЬ НАВІГАЦІЇ) ========== */
         .sidebar {
-            width: var(--sidebar-w);
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(30px);
-            border-right: 2px solid var(--glass-border);
+            width: var(--sidebar-w);         /* Ширина 320px */
+            background: rgba(2, 6, 23, 0.95); /* Майже непрозорий темний */
+            backdrop-filter: blur(30px);     /* Розмиття фону позаду */
+            border-right: 2px solid var(--glass-border); /* Права рамка */
             display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 100;
-            box-shadow: 10px 0 50px rgba(0, 0, 0, 0.7);
+            flex-direction: column;          /* Вертикальне розташування */
+            position: fixed;                 /* Фіксований (не прокручується) */
+            height: 100vh;                   /* Висота на весь екран */
+            z-index: 100;                    /* Над контентом */
+            box-shadow: 10px 0 50px rgba(0, 0, 0, 0.7); /* Тінь праворуч */
         }
 
+        /* ========== ШАПКА SIDEBAR (ЛОГОТИП) ========== */
         .sidebar-header {
             padding: 50px 40px;
-            border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.1); /* Нижня лінія */
             position: relative;
         }
 
+        /* Назва банку (логотип) */
         .brand-name {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.8rem;
             font-weight: 900;
             color: #fff;
-            text-decoration: none;
+            text-decoration: none;           /* Без підкреслення */
         }
 
+        /* Виділений текст "БАНК" (блакитний з свіченням) */
         .brand-name span {
             color: var(--accent);
             text-shadow: 0 0 20px var(--accent-glow);
         }
 
+        /* Підпис під логотипом */
         .brand-subtitle {
             font-size: 0.65rem;
             color: var(--accent);
             margin-top: 8px;
-            letter-spacing: 3px;
+            letter-spacing: 3px;             /* Розрідження літер */
             font-family: 'Orbitron';
             opacity: 0.8;
         }
 
-        /* НАВІГАЦІЯ */
+        /* ========== НАВІГАЦІЙНЕ МЕНЮ ========== */
         .nav-menu {
             padding: 40px 0;
-            flex-grow: 1;
+            flex-grow: 1;                    /* Займає всю доступну висоту */
         }
 
+        /* Посилання в меню */
         .nav-link {
             padding: 22px 40px;
             display: flex;
             align-items: center;
-            gap: 20px;
-            color: #94a3b8;
+            gap: 20px;                       /* Відступ між іконкою та текстом */
+            color: #94a3b8;                  /* Сірий текст */
             text-decoration: none;
             font-family: 'Orbitron', sans-serif;
             font-size: 0.9rem;
-            transition: all 0.3s ease;
+            transition: all 0.3s ease;       /* Плавний перехід */
         }
 
+        /* Іконка в меню (фіксована ширина для вирівнювання) */
         .nav-link i {
             width: 20px;
             text-align: center;
         }
 
+        /* Ефект при наведенні */
         .nav-link:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.05);
+            color: #fff;                     /* Білий текст */
+            background: rgba(255, 255, 255, 0.05); /* Легке підсвічування */
         }
 
+        /* Активне посилання (поточна сторінка) */
         .nav-link.active {
-            color: var(--accent);
-            background: rgba(56, 189, 248, 0.1);
-            border-left: 5px solid var(--accent);
+            color: var(--accent);            /* Блакитний текст */
+            background: rgba(56, 189, 248, 0.1); /* Блакитний фон */
+            border-left: 5px solid var(--accent); /* Жирна ліва рамка */
         }
 
-        /* КНОПКА ВИХОДУ */
+        /* ========== FOOTER SIDEBAR (КНОПКА ВИХОДУ) ========== */
         .sidebar-footer {
             padding: 20px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.05); /* Верхня лінія */
         }
 
+        /* Кнопка виходу (червона) */
         .logout-btn {
-            color: var(--error) !important;
+            color: var(--error) !important;  /* Червоний текст */
             opacity: 0.8;
         }
 
         .logout-btn:hover {
             opacity: 1;
-            background: rgba(239, 68, 68, 0.1) !important;
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.1) !important; /* Червоний фон */
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4);  /* Червоне свічення */
         }
 
-        /* MAIN */
+        /* ========== ОСНОВНИЙ КОНТЕНТ ========== */
         .main-content {
-            margin-left: var(--sidebar-w);
-            flex-grow: 1;
+            margin-left: var(--sidebar-w);  /* Відступ для sidebar (320px) */
+            flex-grow: 1;                    /* Займає всю решту ширини */
             padding: 50px;
-            min-height: 100vh;
-            z-index: 1;
+            min-height: 100vh;               /* Мінімум на весь екран */
+            z-index: 1;                      /* Над фоном */
         }
     </style>
 </head>
 
 <body>
 
+<!-- ========== АНІМОВАНИЙ ФОН ========== -->
 <div class="cyber-background">
+    <!-- Canvas для малювання частинок JavaScript -->
     <canvas id="cyber-canvas"></canvas>
 </div>
 
+<!-- ========== SIDEBAR (БОКОВА ПАНЕЛЬ) ========== -->
 <aside class="sidebar" id="sidebar">
+    <!-- ШАПКА З ЛОГОТИПОМ -->
     <div class="sidebar-header">
         <a href="/" class="brand-name">КРИСТАЛ<span>БАНК</span></a>
-        <div class="brand-subtitle">EST. 2024 • СИСТЕМА v2.0</div>
+        <div class="brand-subtitle">2026 • СИСТЕМА v2.0</div>
     </div>
 
+    <!-- НАВІГАЦІЙНЕ МЕНЮ -->
     <nav class="nav-menu">
         <a href="/clients" class="nav-link"><i class="fas fa-users"></i>КЛІЄНТИ</a>
         <a href="/requests" class="nav-link"><i class="fas fa-file-invoice"></i>ЗАЯВКИ</a>
@@ -176,6 +205,7 @@
         <a href="/about" class="nav-link"><i class="fas fa-info-circle"></i>ПРО СИСТЕМУ</a>
     </nav>
 
+    <!-- FOOTER З КНОПКОЮ ВИХОДУ -->
     <div class="sidebar-footer">
         <a href="/logout" class="nav-link logout-btn">
             <i class="fas fa-sign-out-alt"></i>ВИЙТИ
@@ -183,64 +213,93 @@
     </div>
 </aside>
 
+<!-- ========== ОСНОВНИЙ КОНТЕНТ ========== -->
 <main class="main-content">
+    <!-- Тут вставляється контент з інших шаблонів (clients.html, about.html тощо) -->
     {% block content %}{% endblock %}
 </main>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
+    // ========== АНІМАЦІЯ ЧАСТИНОК НА CANVAS ==========
+    
+    // Отримуємо елемент canvas та контекст для малювання
     const canvas = document.getElementById('cyber-canvas');
     const ctx = canvas.getContext('2d');
 
+    // Функція підлаштування розміру canvas під розмір вікна
     function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;   // Ширина вікна
+        canvas.height = window.innerHeight; // Висота вікна
     }
-    resizeCanvas();
+    resizeCanvas();  // Перший запуск
+    
+    // Підлаштовуємо при зміні розміру вікна
     window.addEventListener('resize', resizeCanvas);
 
+    // ========== КЛАС ЧАСТИНКИ ==========
     class Particle {
         constructor() {
+            // Випадкова початкова позиція
             this.x = Math.random() * canvas.width;
             this.y = Math.random() * canvas.height;
+            
+            // Випадковий розмір (від 0.5 до 2 пікселів)
             this.size = Math.random() * 1.5 + 0.5;
-            this.speedX = Math.random() * 0.3 - 0.15;
+            
+            // Випадкова швидкість руху (повільна)
+            this.speedX = Math.random() * 0.3 - 0.15;  // Від -0.15 до +0.15
             this.speedY = Math.random() * 0.3 - 0.15;
         }
 
+        // Оновлення позиції частинки
         update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
+            this.x += this.speedX;  // Рух по X
+            this.y += this.speedY;  // Рух по Y
 
-            if (this.x < 0) this.x = canvas.width;
-            if (this.x > canvas.width) this.x = 0;
-            if (this.y < 0) this.y = canvas.height;
-            if (this.y > canvas.height) this.y = 0;
+            // Телепортація при виході за межі екрану (замість відскоку)
+            if (this.x < 0) this.x = canvas.width;    // Вийшла зліва → з'являється справа
+            if (this.x > canvas.width) this.x = 0;    // Вийшла справа → з'являється зліва
+            if (this.y < 0) this.y = canvas.height;   // Вийшла зверху → з'являється знизу
+            if (this.y > canvas.height) this.y = 0;   // Вийшла знизу → з'являється зверху
         }
 
+        // Малювання частинки
         draw() {
-            ctx.fillStyle = '#38bdf8';
-            ctx.fillRect(this.x, this.y, 2, 2); 
+            ctx.fillStyle = '#38bdf8';      // Блакитний колір
+            ctx.fillRect(this.x, this.y, 2, 2);  // Квадрат 2x2 пікселі
         }
     }
 
+    // Створюємо масив із 120 частинок
     const particles = Array.from({ length: 120 }, () => new Particle());
 
+    // ========== ГОЛОВНИЙ ЦИКЛ АНІМАЦІЇ ==========
     function animate() {
+        // Очищаємо весь canvas (стираємо попередній кадр)
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Оновлюємо та малюємо кожну частинку
         particles.forEach(p => {
-            p.update();
-            p.draw();
+            p.update();  // Оновити позицію
+            p.draw();    // Намалювати
         });
+        
+        // Запит наступного кадру анімації (рекурсивно)
         requestAnimationFrame(animate);
     }
 
+    // Запускаємо анімацію
     animate();
 
-    // Авто-активація посилань
-    const currentPath = window.location.pathname;
+    // ========== АВТОМАТИЧНА АКТИВАЦІЯ ПОСИЛАННЯ ПОТОЧНОЇ СТОРІНКИ ==========
+    const currentPath = window.location.pathname;  // Поточний шлях (наприклад: /clients)
+    
+    // Перебираємо всі посилання в меню
     document.querySelectorAll('.nav-link').forEach(link => {
+        // Якщо href посилання збігається з поточним шляхом
         if (link.getAttribute('href') === currentPath) {
-            link.classList.add('active');
+            link.classList.add('active');  // Додаємо клас 'active' (підсвічування)
         }
     });
 </script>
