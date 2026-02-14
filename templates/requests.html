@@ -1,17 +1,23 @@
+<!-- 
+    СТОРІНКА ЗАЯВОК
+    Показує список всіх заявок на послуги з фільтрацією за статусом
+-->
+
+<!-- Успадковуємо базовий шаблон -->
 {% extends "base.html" %}
 
 {% block content %}
 <style>
-    /* Головний контейнер */
+    /* ========== ГОЛОВНИЙ КОНТЕЙНЕР ========== */
     .content-wrapper {
         animation: fadeIn 0.8s ease-out;
         padding-top: 10px;
     }
 
-    /* Заголовок та кнопка */
+    /* ========== ШАПКА СТОРІНКИ ========== */
     .page-header {
         display: flex; 
-        justify-content: space-between; 
+        justify-content: space-between;
         align-items: center; 
         margin-bottom: 30px;
     }
@@ -25,7 +31,7 @@
         font-size: 1.8rem;
     }
 
-    /* ========== СТАТИСТИКА ЗАЯВОК ========== */
+    /* ========== СТАТИСТИКА ЗАЯВОК (4 КАРТКИ) ========== */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -33,6 +39,7 @@
         margin-bottom: 30px;
     }
 
+    /* Статистична картка */
     .stat-card {
         background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -44,6 +51,7 @@
         overflow: hidden;
     }
 
+    /* Анімована лінія зверху */
     .stat-card::before {
         content: '';
         position: absolute;
@@ -65,6 +73,7 @@
         border-color: var(--accent);
     }
 
+    /* Число в статистиці */
     .stat-number {
         font-family: 'Orbitron';
         font-size: 2rem;
@@ -74,6 +83,7 @@
         text-shadow: 0 0 20px var(--accent-glow);
     }
 
+    /* Підпис статистики */
     .stat-label {
         font-family: 'Orbitron';
         font-size: 0.7rem;
@@ -81,7 +91,7 @@
         letter-spacing: 1px;
     }
 
-    /* ========== ФІЛЬТРИ ========== */
+    /* ========== СЕКЦІЯ ФІЛЬТРІВ ========== */
     .filters-section {
         background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.1);
@@ -94,6 +104,7 @@
         flex-wrap: wrap;
     }
 
+    /* Підпис фільтра */
     .filter-label {
         font-family: 'Orbitron';
         font-size: 0.75rem;
@@ -101,6 +112,7 @@
         letter-spacing: 1px;
     }
 
+    /* Кнопка фільтра */
     .filter-btn {
         padding: 10px 20px;
         background: rgba(255, 255, 255, 0.05);
@@ -122,6 +134,7 @@
         transform: translateY(-2px);
     }
 
+    /* Активний фільтр */
     .filter-btn.active {
         background: rgba(56, 189, 248, 0.2);
         border-color: var(--accent);
@@ -129,7 +142,7 @@
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
-    /* Кнопка "Нова Заявка" */
+    /* ========== КНОПКА "НОВА ЗАЯВКА" ========== */
     .btn-cyber-main {
         background: rgba(56, 189, 248, 0.1);
         border: 1px solid var(--accent);
@@ -153,7 +166,7 @@
         transform: translateY(-2px);
     }
 
-    /* Таблиця */
+    /* ========== ТАБЛИЦЯ ========== */
     .table-responsive {
         background: var(--card-bg-dark) !important;
         border: 1px solid var(--glass-border) !important;
@@ -193,6 +206,7 @@
         border-bottom: 1px solid rgba(255, 255, 255, 0.03);
     }
 
+    /* Ефект при наведенні на рядок */
     .cyber-table tbody tr:hover {
         transform: translateY(-8px) scale(1.01);
         background: rgba(56, 189, 248, 0.12);
@@ -205,7 +219,7 @@
         border-color: var(--accent);
     }
 
-    /* ========== СТАТУСИ ========== */
+    /* ========== СТАТУСИ ЗАЯВОК ========== */
     .status-badge {
         font-weight: bold;
         text-transform: uppercase;
@@ -217,9 +231,10 @@
         gap: 8px;
         font-family: 'Orbitron';
         letter-spacing: 1px;
-        animation: pulse 2s ease-in-out infinite;
+        animation: pulse 2s ease-in-out infinite;  /* Пульсація */
     }
 
+    /* Статус "Нова" - блакитний */
     .status-new {
         background: rgba(56, 189, 248, 0.15);
         color: var(--accent);
@@ -227,6 +242,7 @@
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
+    /* Статус "В обробці" - жовтий */
     .status-processing {
         background: rgba(251, 191, 36, 0.15);
         color: #fbbf24;
@@ -234,6 +250,7 @@
         box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
     }
 
+    /* Статус "Закрита" - зелений */
     .status-closed {
         background: rgba(74, 222, 128, 0.15);
         color: #4ade80;
@@ -241,6 +258,7 @@
         box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
     }
 
+    /* Анімація пульсації статусів */
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
@@ -250,7 +268,7 @@
         font-size: 0.9rem;
     }
 
-    /* Кнопки дій */
+    /* ========== КНОПКИ ДІЙ ========== */
     .btn-action-small {
         font-size: 0.7rem; 
         padding: 8px 16px;
@@ -273,19 +291,20 @@
         transform: scale(1.05);
     }
 
+    /* Вимкнена кнопка (для закритих заявок) */
     .btn-action-disabled {
         opacity: 0.4;
         cursor: not-allowed;
         pointer-events: none;
     }
 
-    /* Анімації */
+    /* ========== АНІМАЦІЇ ========== */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Empty state */
+    /* ========== ПОРОЖНІЙ СТАН ========== */
     .empty-state {
         text-align: center;
         padding: 80px 20px;
@@ -300,57 +319,67 @@
     }
 </style>
 
+<!-- ========== HTML СТРУКТУРА ========== -->
 <div class="content-wrapper">
-    <!-- Заголовок -->
+    <!-- ШАПКА -->
     <div class="page-header">
         <h2 class="page-title">
             <i class="fas fa-database"></i> РЕЄСТР ЗАЯВОК
         </h2>
+        <!-- Кнопка додавання заявки -->
         <a href="/add-request" class="btn-cyber-main">
             <i class="fas fa-plus-circle"></i> НОВА ЗАЯВКА
         </a>
     </div>
 
-    <!-- Статистика -->
+    <!-- СТАТИСТИКА -->
     <div class="stats-grid">
+        <!-- Всього заявок -->
         <div class="stat-card">
             <div class="stat-number">{{ stats.total }}</div>
             <div class="stat-label">ВСЬОГО ЗАЯВОК</div>
         </div>
+        <!-- Нових -->
         <div class="stat-card">
             <div class="stat-number" style="color: var(--accent);">{{ stats.new }}</div>
             <div class="stat-label">НОВИХ</div>
         </div>
+        <!-- В обробці -->
         <div class="stat-card">
             <div class="stat-number" style="color: #fbbf24;">{{ stats.processing }}</div>
             <div class="stat-label">В ОБРОБЦІ</div>
         </div>
+        <!-- Закритих -->
         <div class="stat-card">
             <div class="stat-number" style="color: #4ade80;">{{ stats.closed }}</div>
             <div class="stat-label">ЗАКРИТИХ</div>
         </div>
     </div>
 
-    <!-- Фільтри -->
+    <!-- ФІЛЬТРИ ЗА СТАТУСОМ -->
     <div class="filters-section">
         <span class="filter-label">
             <i class="fas fa-filter"></i> ФІЛЬТР ЗА СТАТУСОМ:
         </span>
+        <!-- Всі заявки -->
         <a href="/requests" class="filter-btn {% if not status_filter %}active{% endif %}">
             Всі
         </a>
+        <!-- Тільки нові -->
         <a href="/requests?status=Нова" class="filter-btn {% if status_filter == 'Нова' %}active{% endif %}">
             <i class="fas fa-circle" style="color: var(--accent); font-size: 0.5rem;"></i> Нові
         </a>
+        <!-- Тільки в обробці -->
         <a href="/requests?status=В обробці" class="filter-btn {% if status_filter == 'В обробці' %}active{% endif %}">
             <i class="fas fa-circle" style="color: #fbbf24; font-size: 0.5rem;"></i> В обробці
         </a>
+        <!-- Тільки закриті -->
         <a href="/requests?status=Закрита" class="filter-btn {% if status_filter == 'Закрита' %}active{% endif %}">
             <i class="fas fa-circle" style="color: #4ade80; font-size: 0.5rem;"></i> Закриті
         </a>
     </div>
 
-    <!-- Таблиця -->
+    <!-- ТАБЛИЦЯ ЗАЯВОК -->
     <div class="table-responsive">
         <table class="cyber-table">
             <thead>
@@ -364,16 +393,22 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- Якщо є заявки -->
                 {% if requests %}
+                    <!-- Цикл по заявках -->
                     {% for r in requests %}
                     <tr>
+                        <!-- ID заявки -->
                         <td style="color: var(--accent); font-family: 'Orbitron'; font-weight: bold;">
                             #{{ r.id }}
                         </td>
+                        <!-- Ім'я клієнта -->
                         <td>
                             <strong>{{ r.client_name }}</strong>
                         </td>
+                        <!-- Назва послуги -->
                         <td>{{ r.service }}</td>
+                        <!-- Статус з бейджем -->
                         <td>
                             {% if r.status == 'Нова' %}
                                 <span class="status-badge status-new">
@@ -389,14 +424,18 @@
                                 </span>
                             {% endif %}
                         </td>
+                        <!-- Дата створення (перші 16 символів = YYYY-MM-DD HH:MM) -->
                         <td style="font-family: 'Orbitron'; font-size: 0.8rem; color: #94a3b8;">
                             {{ r.created_at[:16] }}
                         </td>
+                        <!-- Кнопка зміни статусу -->
                         <td>
+                            <!-- Якщо не закрита - показуємо кнопку "Далі" -->
                             {% if r.status != "Закрита" %}
                                 <a href="/request/{{ r.id }}/status" class="btn-action-small">
                                     <i class="fas fa-arrow-right"></i> ДАЛІ
                                 </a>
+                            <!-- Якщо закрита - вимкнена кнопка "Архів" -->
                             {% else %}
                                 <span class="btn-action-small btn-action-disabled">
                                     <i class="fas fa-archive"></i> АРХІВ
@@ -405,6 +444,7 @@
                         </td>
                     </tr>
                     {% endfor %}
+                <!-- Якщо заявок немає -->
                 {% else %}
                     <tr>
                         <td colspan="6">
@@ -429,19 +469,22 @@
     </div>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
-// Анімація рядків таблиці при завантаженні
+// ========== АНІМАЦІЯ РЯДКІВ ПРИ ЗАВАНТАЖЕННІ ==========
 document.addEventListener('DOMContentLoaded', () => {
     const rows = document.querySelectorAll('.cyber-table tbody tr');
     rows.forEach((row, index) => {
+        // Спочатку невидимі
         row.style.opacity = '0';
         row.style.transform = 'translateY(20px)';
         
+        // Поступово з'являються
         setTimeout(() => {
             row.style.transition = 'all 0.5s ease';
             row.style.opacity = '1';
             row.style.transform = 'translateY(0)';
-        }, index * 50);
+        }, index * 50);  // Затримка між рядками 50ms
     });
 });
 </script>
