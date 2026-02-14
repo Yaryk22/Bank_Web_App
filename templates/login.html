@@ -1,161 +1,200 @@
+<!-- 
+    СТОРІНКА ВХОДУ (LOGIN)
+    Форма авторизації з анімованим фоном та частинками
+-->
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <title>КРИСТАЛБАНК — Авторизація</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Підключення шрифту Orbitron -->
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
+        /* ========== CSS ЗМІННІ ========== */
         :root {
-            --accent: #38bdf8;
-            --bg-dark: #020617;
-            --card-bg: rgba(15,23,42,.88);
+            --accent: #38bdf8;           /* Блакитний акцент */
+            --bg-dark: #020617;          /* Темний фон */
+            --card-bg: rgba(15,23,42,.88);  /* Напівпрозорий фон картки */
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ========== RESET ========== */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
 
+        /* ========== ОСНОВНИЙ КОНТЕЙНЕР ========== */
         body {
-            height: 100vh;
+            height: 100vh;               /* Висота на весь екран */
             background: var(--bg-dark);
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: center;     /* Центрування по горизонталі */
+            align-items: center;         /* Центрування по вертикалі */
             font-family: system-ui, sans-serif;
-            overflow: hidden;
+            overflow: hidden;            /* Без прокрутки */
             position: relative;
         }
 
-        /* Фон з партиклами */
+        /* ========== АНІМОВАНИЙ ФОН ========== */
         .deep-space-bg {
             position: absolute;
-            inset: 0;
+            inset: 0;                    /* Займає весь екран */
+            /* Радіальний градієнт (світліше в центрі) */
             background: radial-gradient(circle at center, #0c3a5e 0%, #020617 70%);
         }
 
+        /* ========== ЧАСТИНКА (ТОЧКА) ========== */
         .particle {
             position: absolute;
             width: 2px;
             height: 2px;
             background: var(--accent);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--accent);
-            animation: float 15s infinite;
+            border-radius: 50%;          /* Круглий */
+            box-shadow: 0 0 10px var(--accent);  /* Свічення */
+            animation: float 15s infinite;  /* Анімація плавання */
         }
 
+        /* Анімація плавання частинки знизу вгору */
         @keyframes float {
-            0% { transform: translateY(100vh) translateX(0); opacity: 0; }
-            10% { opacity: 1; }
+            0% { 
+                transform: translateY(100vh) translateX(0);  /* Початок: знизу */
+                opacity: 0; 
+            }
+            10% { opacity: 1; }          /* Плавна поява */
             90% { opacity: 1; }
-            100% { transform: translateY(-100px) translateX(100px); opacity: 0; }
+            100% { 
+                transform: translateY(-100px) translateX(100px);  /* Кінець: вгору-вправо */
+                opacity: 0;              /* Плавне зникнення */
+            }
         }
 
+        /* ========== СВІТЛОВА АУРА (РОЗМИТИЙ КРУГ) ========== */
         .ambient-glow {
             position: absolute;
-            width: 60vw;
-            height: 60vh;
+            width: 60vw;                 /* 60% ширини вікна */
+            height: 60vh;                /* 60% висоти вікна */
+            /* Радіальний градієнт блакитного */
             background: radial-gradient(circle, rgba(56,189,248,0.14), transparent 70%);
-            filter: blur(100px);
-            animation: pulse 6s ease-in-out infinite;
+            filter: blur(100px);         /* Сильне розмиття */
+            animation: pulse 6s ease-in-out infinite;  /* Пульсація */
         }
 
+        /* Анімація пульсації (зміна прозорості) */
         @keyframes pulse {
             0%, 100% { opacity: .6; }
             50% { opacity: 1; }
         }
 
-        /* Форма */
+        /* ========== КАРТКА ФОРМИ (ЗОВНІШНЯ РАМКА) ========== */
         .card {
             position: relative;
+            /* Градієнт-рамка (блакитний по діагоналі) */
             background: linear-gradient(160deg, rgba(56,189,248,.7), rgba(2,6,23,.95));
-            padding: 1.5px;
+            padding: 1.5px;              /* Товщина рамки */
             border-radius: 28px;
-            box-shadow: 0 0 55px rgba(56,189,248,.35);
-            z-index: 2;
+            box-shadow: 0 0 55px rgba(56,189,248,.35);  /* Свічення */
+            z-index: 2;                  /* Над фоном */
         }
 
+        /* ========== КАРТКА ФОРМИ (ВНУТРІШНЯ ЧАСТИНА) ========== */
         .card2 {
-            background: var(--card-bg);
+            background: var(--card-bg);  /* Темний напівпрозорий фон */
             border-radius: 26px;
             transition: .25s ease;
         }
 
+        /* Легке зменшення при наведенні */
         .card2:hover {
-            transform: scale(0.985);
+            transform: scale(0.985);     /* Зменшення на 1.5% */
         }
 
+        /* ========== ФОРМА ========== */
         .form {
             width: 400px;
             padding: 2.6em 2.6em 2.8em;
             display: flex;
             flex-direction: column;
-            gap: 22px;
+            gap: 22px;                   /* Відступ між елементами */
             border-radius: 26px;
         }
 
+        /* ========== ЗАГОЛОВОК ФОРМИ ========== */
         #heading {
             text-align: center;
             margin-bottom: 4px;
         }
 
+        /* Назва банку */
         .bank-name {
             font-family: 'Orbitron', sans-serif;
             font-size: 1.9rem;
-            letter-spacing: 3.5px;
+            letter-spacing: 3.5px;       /* Розрідження */
             color: var(--accent);
         }
 
+        /* Підзаголовок */
         .bank-sub {
             margin-top: 8px;
             font-size: .7rem;
             letter-spacing: 1.4px;
-            color: #94a3b8;
+            color: #94a3b8;              /* Сірий */
         }
 
+        /* ========== ПОЛЕ ВВОДУ ========== */
         .field {
             display: flex;
             align-items: center;
-            gap: .9em;
+            gap: .9em;                   /* Відступ між іконкою та input */
             padding: .95em 1.1em;
             border-radius: 18px;
-            background: rgba(2,6,23,.95);
-            box-shadow: inset 3px 5px 10px rgba(0,0,0,.85);
+            background: rgba(2,6,23,.95);  /* Темний фон */
+            box-shadow: inset 3px 5px 10px rgba(0,0,0,.85);  /* Внутрішня тінь (заглиблення) */
             border: 1px solid rgba(56,189,248,.18);
             transition: .25s ease;
         }
 
+        /* Фокус на полі - світиться рамка */
         .field:focus-within {
             border-color: var(--accent);
             box-shadow: inset 3px 5px 10px rgba(0,0,0,.85), 0 0 26px rgba(56,189,248,.45);
         }
 
+        /* ========== ІКОНКА В ПОЛІ ========== */
         .input-icon {
             width: 1.5em;
             height: 1.5em;
-            fill: var(--accent);
+            fill: var(--accent);         /* Блакитний колір SVG */
             opacity: .9;
         }
 
+        /* ========== INPUT (ТЕКСТОВЕ ПОЛЕ) ========== */
         .input-field {
-            background: none;
+            background: none;            /* Прозорий фон */
             border: none;
-            outline: none;
+            outline: none;               /* Без outline при фокусі */
             width: 100%;
-            color: #e5e7eb;
+            color: #e5e7eb;              /* Світло-сірий текст */
             font-size: .95rem;
             letter-spacing: .5px;
         }
 
+        /* ========== ПОВІДОМЛЕННЯ ПРО ПОМИЛКУ ========== */
         .error-msg {
-            color: #ef4444;
+            color: #ef4444;              /* Червоний */
             font-size: 0.75rem;
             text-align: center;
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.1);  /* Напівпрозорий червоний фон */
             padding: 8px;
             border-radius: 10px;
             border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
+        /* ========== КНОПКА ВХОДУ ========== */
         .submit-btn {
             margin-top: 10px;
             height: 50px;
@@ -165,54 +204,68 @@
             font-size: .85rem;
             letter-spacing: 2px;
             font-weight: 600;
-            color: #020617;
+            color: #020617;              /* Темний текст */
+            /* Градієнт від світло-блакитного до синього */
             background: linear-gradient(135deg, rgba(56,189,248,1), rgba(14,165,233,1));
             box-shadow: 0 0 35px rgba(56,189,248,.45), inset 0 0 0 1px rgba(255,255,255,.25);
             transition: .25s ease;
         }
 
+        /* Ефект при наведенні */
         .submit-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px);  /* Підняття */
             box-shadow: 0 5px 50px rgba(56,189,248,.6);
         }
     </style>
 </head>
 <body>
+    <!-- ФОНОВИЙ ШАР -->
     <div class="deep-space-bg"></div>
+    
+    <!-- СВІТЛОВА АУРА -->
     <div class="ambient-glow"></div>
 
-    <!-- Партикли -->
+    <!-- КОНТЕЙНЕР ДЛЯ ЧАСТИНОК (заповнюється JavaScript) -->
     <div id="particles"></div>
 
+    <!-- КАРТКА З ФОРМОЮ -->
     <div class="card">
         <div class="card2">
+            <!-- ФОРМА ВХОДУ (POST запит до /login) -->
             <form class="form" method="POST" action="/login">
+                <!-- ЗАГОЛОВОК -->
                 <div id="heading">
                     <div class="bank-name">КРИСТАЛБАНК</div>
                     <div class="bank-sub">АВТОМАТИЗОВАНА СИСТЕМА УПРАВЛІННЯ</div>
                 </div>
 
+                <!-- ПОЛЕ ЛОГІНУ -->
                 <div class="field">
+                    <!-- SVG іконка користувача -->
                     <svg viewBox="0 0 16 16" class="input-icon">
-                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                        <path d="M14 14s-1-4-6-4-6 4-6 4"/>
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>  <!-- Голова -->
+                        <path d="M14 14s-1-4-6-4-6 4-6 4"/>             <!-- Тіло -->
                     </svg>
+                    <!-- Поле вводу логіну -->
                     <input 
                         type="text" 
                         name="username" 
                         class="input-field" 
                         placeholder="Логін" 
-                        required 
-                        minlength="3"
-                        autocomplete="off" 
+                        required                 <!-- Обов'язкове поле -->
+                        minlength="3"            <!-- Мінімум 3 символи -->
+                        autocomplete="off"       <!-- Вимкнути автозаповнення -->
                     />
                 </div>
 
+                <!-- ПОЛЕ ПАРОЛЯ -->
                 <div class="field">
+                    <!-- SVG іконка замка -->
                     <svg viewBox="0 0 16 16" class="input-icon">
-                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2z"/>
-                        <path d="M3 7h10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2z"/>  <!-- Дужка замка -->
+                        <path d="M3 7h10v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>  <!-- Корпус замка -->
                     </svg>
+                    <!-- Поле вводу пароля -->
                     <input 
                         type="password" 
                         name="password" 
@@ -222,26 +275,40 @@
                     />
                 </div>
 
+                <!-- БЛОК ПОМИЛОК (якщо є повідомлення від Flask) -->
                 {% with messages = get_flashed_messages() %}
                   {% if messages %}
                     <div class="error-msg">{{ messages[0] }}</div>
                   {% endif %}
                 {% endwith %}
 
+                <!-- КНОПКА ВХОДУ -->
                 <button class="submit-btn" type="submit">УВІЙТИ</button>
             </form>
         </div>
     </div>
 
+    <!-- ========== JAVASCRIPT ========== -->
     <script>
-        // Створення партиклів
+        // ========== СТВОРЕННЯ АНІМОВАНИХ ЧАСТИНОК ==========
         const container = document.getElementById('particles');
+        
+        // Створюємо 50 частинок
         for(let i = 0; i < 50; i++) {
+            // Створення div елемента
             const p = document.createElement('div');
             p.className = 'particle';
+            
+            // Випадкова початкова позиція по горизонталі
             p.style.left = Math.random() * 100 + '%';
+            
+            // Випадкова затримка анімації (0-15 секунд)
             p.style.animationDelay = Math.random() * 15 + 's';
+            
+            // Випадкова тривалість анімації (10-20 секунд)
             p.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            
+            // Додавання частинки в контейнер
             container.appendChild(p);
         }
     </script>
