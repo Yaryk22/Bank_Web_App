@@ -1,47 +1,57 @@
+<!-- 
+    СТОРІНКА СПИСКУ КЛІЄНТІВ
+    Показує таблицю всіх клієнтів з пошуком, фільтрацією та статистикою
+-->
+
+<!-- Успадковуємо базовий шаблон -->
 {% extends "base.html" %}
 
 {% block content %}
 <style>
-    /* Головний контейнер */
+    /* ========== ГОЛОВНИЙ КОНТЕЙНЕР ========== */
     .content-wrapper {
-        animation: fadeIn 0.8s ease-out;
+        animation: fadeIn 0.8s ease-out;  /* Плавна поява при завантаженні */
         padding-top: 10px;
     }
 
-    /* Заголовок та кнопка */
+    /* ========== ШАПКА СТОРІНКИ (ЗАГОЛОВОК + КНОПКИ) ========== */
     .page-header {
         display: flex; 
-        justify-content: space-between; 
+        justify-content: space-between;  /* Заголовок ліворуч, кнопки праворуч */
         align-items: center; 
         margin-bottom: 30px;
-        flex-wrap: wrap;
+        flex-wrap: wrap;                 /* Переноситься на мобільних */
         gap: 15px;
     }
 
+    /* Заголовок сторінки */
     .page-title {
         font-family: 'Orbitron'; 
-        color: var(--accent); 
-        letter-spacing: 2px;
-        text-shadow: 0 0 10px var(--accent-glow);
+        color: var(--accent);            /* Блакитний колір */
+        letter-spacing: 2px;             /* Розрідження літер */
+        text-shadow: 0 0 10px var(--accent-glow);  /* Свічення */
         margin: 0;
         font-size: 1.8rem;
     }
 
+    /* Контейнер для кнопок у шапці */
     .header-actions {
         display: flex;
-        gap: 10px;
+        gap: 10px;                       /* Відступ між кнопками */
     }
 
-    /* ========== СТАТИСТИКА ========== */
+    /* ========== СТАТИСТИКА (6 КАРТОК) ========== */
     .stats-banner {
         display: grid;
+        /* Автоматичне заповнення: мінімум 180px на картку */
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 20px;
         margin-bottom: 30px;
     }
 
+    /* Окрема статистична картка */
     .stat-box {
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 23, 42, 0.6);  /* Напівпрозорий темний */
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 15px;
         padding: 20px;
@@ -51,27 +61,32 @@
         transition: 0.3s;
     }
 
+    /* Анімована лінія зверху (рухається при наведенні) */
     .stat-box::before {
-        content: '';
+        content: '';                     /* Порожній псевдоелемент */
         position: absolute;
         top: 0;
-        left: -100%;
+        left: -100%;                     /* Початкова позиція - поза карткою */
         width: 100%;
-        height: 3px;
+        height: 3px;                     /* Тонка лінія */
+        /* Градієнт-блиск */
         background: linear-gradient(90deg, transparent, var(--accent), transparent);
         transition: 0.5s;
     }
 
+    /* При наведенні - лінія рухається */
     .stat-box:hover::before {
         left: 100%;
     }
 
+    /* Ефекти при наведенні */
     .stat-box:hover {
-        transform: translateY(-5px);
+        transform: translateY(-5px);     /* Підняття */
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         border-color: var(--accent);
     }
 
+    /* Число в статистиці */
     .stat-value {
         font-family: 'Orbitron';
         font-size: 2.2rem;
@@ -81,59 +96,65 @@
         text-shadow: 0 0 20px var(--accent-glow);
     }
 
+    /* Підпис статистики */
     .stat-label {
         font-family: 'Orbitron';
         font-size: 0.7rem;
         color: rgba(255, 255, 255, 0.6);
         letter-spacing: 1px;
-        text-transform: uppercase;
+        text-transform: uppercase;       /* Великі літери */
     }
 
+    /* Іконка в правому нижньому куті */
     .stat-icon {
         font-size: 2rem;
-        opacity: 0.2;
+        opacity: 0.2;                    /* Напівпрозора */
         position: absolute;
         bottom: 10px;
         right: 15px;
     }
 
-    /* ========== ПОШУК ТА ФІЛЬТРИ ========== */
+    /* ========== СЕКЦІЯ ПОШУКУ ТА ФІЛЬТРІВ ========== */
     .search-section {
         margin-bottom: 30px;
         display: flex;
         gap: 15px;
         align-items: center;
-        flex-wrap: wrap;
+        flex-wrap: wrap;                 /* Переноситься на мобільних */
     }
 
+    /* Форма пошуку */
     .search-form {
         display: flex;
-        flex-grow: 1;
+        flex-grow: 1;                    /* Займає доступний простір */
         gap: 10px;
         position: relative;
         min-width: 300px;
     }
 
+    /* Поле вводу пошуку */
     .search-input {
         width: 100%;
         background: rgba(255, 255, 255, 0.05);
         border: 1px solid var(--glass-border);
-        border-radius: 50px;
+        border-radius: 50px;             /* Круглі краї */
         padding: 14px 25px;
         color: #fff;
         font-family: 'Inter', sans-serif;
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);     /* Розмиття фону */
     }
 
+    /* Фокус на полі пошуку */
     .search-input:focus {
         outline: none;
         border-color: var(--accent);
         background: rgba(56, 189, 248, 0.1);
         box-shadow: 0 0 20px var(--accent-glow);
-        transform: scale(1.02);
+        transform: scale(1.02);          /* Легке збільшення */
     }
 
+    /* Кнопка "Шукати" */
     .btn-search {
         background: var(--accent);
         color: #000;
@@ -146,21 +167,23 @@
         cursor: pointer;
         transition: 0.3s;
         box-shadow: 0 0 15px var(--accent-glow);
-        white-space: nowrap;
+        white-space: nowrap;             /* Текст не переноситься */
     }
 
     .btn-search:hover {
         transform: translateY(-2px);
         box-shadow: 0 0 25px var(--accent-glow);
-        filter: brightness(1.1);
+        filter: brightness(1.1);         /* Трохи світліше */
     }
 
+    /* ========== ФІЛЬТРИ-ТАБЛЕТКИ ========== */
     .filter-pills {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
 
+    /* Окрема таблетка-фільтр */
     .filter-pill {
         padding: 10px 18px;
         background: rgba(255, 255, 255, 0.05);
@@ -181,6 +204,7 @@
         color: var(--accent);
     }
 
+    /* Активний фільтр (вибраний) */
     .filter-pill.active {
         background: rgba(56, 189, 248, 0.2);
         border-color: var(--accent);
@@ -188,6 +212,7 @@
         box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
     }
 
+    /* Кнопка скидання фільтрів (червона) */
     .btn-reset {
         color: #ef4444;
         text-decoration: none;
@@ -205,7 +230,7 @@
         box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
     }
 
-    /* Кнопки дій */
+    /* ========== УНІВЕРСАЛЬНІ КНОПКИ ========== */
     .btn-cyber-main {
         background: rgba(56, 189, 248, 0.1);
         border: 1px solid var(--accent);
@@ -230,6 +255,7 @@
         transform: translateY(-2px);
     }
 
+    /* Варіація для кнопки експорту (зелена) */
     .btn-export {
         background: rgba(34, 197, 94, 0.1);
         border-color: #22c55e;
@@ -241,25 +267,26 @@
         color: #000;
     }
 
-    /* Таблиця */
+    /* ========== ТАБЛИЦЯ ========== */
     .table-responsive {
         background: var(--card-bg-dark) !important;
         border: 1px solid var(--glass-border) !important;
         border-radius: 20px;
         padding: 20px;
-        backdrop-filter: blur(25px);
+        backdrop-filter: blur(25px);     /* Ефект матового скла */
         box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        overflow-x: auto;
+        overflow-x: auto;                /* Горизонтальна прокрутка на мобільних */
     }
 
     .cyber-table {
         width: 100%;
-        border-collapse: separate; 
-        border-spacing: 0 8px;
+        border-collapse: separate;       /* Окремі рамки для клітинок */
+        border-spacing: 0 8px;           /* Відступ між рядками */
         color: #f1f5f9;
-        min-width: 800px;
+        min-width: 800px;                /* Мінімальна ширина (прокрутка на маленьких екранах) */
     }
 
+    /* Заголовки таблиці */
     .cyber-table th {
         text-align: left;
         padding: 15px 20px;
@@ -270,22 +297,26 @@
         border-bottom: 1px solid var(--glass-border);
     }
 
+    /* Рядки таблиці */
     .cyber-table tbody tr {
         transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
         background: rgba(255, 255, 255, 0.02);
     }
 
+    /* Клітинки таблиці */
     .cyber-table td {
         padding: 18px 20px;
     }
 
+    /* Ефект при наведенні на рядок */
     .cyber-table tbody tr:hover {
-        transform: translateY(-5px) scale(1.005);
+        transform: translateY(-5px) scale(1.005);  /* Підняття та легке збільшення */
         background: rgba(56, 189, 248, 0.12);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
-        cursor: pointer;
+        cursor: pointer;                 /* Вказівник миші - рука */
     }
 
+    /* ========== БЕЙДЖІ ТИПУ КЛІЄНТА ========== */
     .client-type-badge {
         font-size: 0.7rem;
         padding: 4px 12px;
@@ -294,18 +325,21 @@
         font-weight: 600;
     }
 
+    /* Фізична особа - блакитний */
     .type-physical {
         background: rgba(56, 189, 248, 0.15);
         color: var(--accent);
         border: 1px solid var(--accent);
     }
 
+    /* Юридична особа - фіолетовий */
     .type-legal {
         background: rgba(168, 85, 247, 0.15);
         color: #a855f7;
         border: 1px solid #a855f7;
     }
 
+    /* ========== МАЛЕНЬКІ КНОПКИ ДІЙ ========== */
     .btn-action-small {
         font-size: 0.7rem; 
         padding: 6px 12px;
@@ -326,7 +360,7 @@
         color: #000;
     }
 
-    /* Empty state */
+    /* ========== ПОРОЖНІЙ СТАН (КОЛИ НЕМАЄ ДАНИХ) ========== */
     .empty-state {
         text-align: center;
         padding: 80px 20px;
@@ -334,85 +368,103 @@
         font-family: 'Orbitron';
     }
 
+    /* Велика іконка в порожньому стані */
     .empty-state i {
         font-size: 4rem;
         color: rgba(56, 189, 248, 0.3);
         margin-bottom: 20px;
     }
 
+    /* ========== АНІМАЦІЇ ========== */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ========== АДАПТИВНІСТЬ ДЛЯ МОБІЛЬНИХ ========== */
     @media (max-width: 768px) {
+        /* Менші статистичні картки */
         .stats-banner {
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
         }
         
+        /* Вертикальне розташування пошуку */
         .search-section {
             flex-direction: column;
             align-items: stretch;
         }
         
+        /* Пошук на всю ширину */
         .search-form {
             min-width: 100%;
         }
     }
 </style>
 
+<!-- ========== HTML СТРУКТУРА ========== -->
 <div class="content-wrapper">
-    <!-- Заголовок -->
+    <!-- ШАПКА СТОРІНКИ -->
     <div class="page-header">
         <h2 class="page-title">
             <i class="fas fa-users"></i> БАЗА КЛІЄНТІВ
         </h2>
+        <!-- Кнопки дій -->
         <div class="header-actions">
+            <!-- Кнопка експорту в CSV -->
             <a href="/export/clients" class="btn-cyber-main btn-export">
                 <i class="fas fa-file-export"></i> ЕКСПОРТ
             </a>
+            <!-- Кнопка додавання клієнта -->
             <a href="/add-client" class="btn-cyber-main">
                 <i class="fas fa-user-plus"></i> ДОДАТИ КЛІЄНТА
             </a>
         </div>
     </div>
 
-    <!-- Статистика -->
+    <!-- СТАТИСТИКА (6 КАРТОК) -->
     <div class="stats-banner">
+        <!-- Картка 1: Всього клієнтів -->
         <div class="stat-box">
             <div class="stat-value">{{ stats.total_clients }}</div>
             <div class="stat-label">Всього клієнтів</div>
             <i class="fas fa-users stat-icon"></i>
         </div>
+        <!-- Картка 2: Фізичні особи -->
         <div class="stat-box">
             <div class="stat-value" style="color: var(--accent);">{{ stats.physical_clients }}</div>
             <div class="stat-label">Фізичні особи</div>
             <i class="fas fa-user stat-icon"></i>
         </div>
+        <!-- Картка 3: Юридичні особи -->
         <div class="stat-box">
             <div class="stat-value" style="color: #a855f7;">{{ stats.legal_clients }}</div>
             <div class="stat-label">Юридичні особи</div>
             <i class="fas fa-building stat-icon"></i>
         </div>
+        <!-- Картка 4: Активні картки -->
         <div class="stat-box">
             <div class="stat-value" style="color: #22c55e;">{{ stats.active_cards }}</div>
             <div class="stat-label">Активних карток</div>
             <i class="fas fa-credit-card stat-icon"></i>
         </div>
+        <!-- Картка 5: Нові заявки -->
         <div class="stat-box">
             <div class="stat-value" style="color: #fbbf24;">{{ stats.new_requests }}</div>
             <div class="stat-label">Нових заявок</div>
             <i class="fas fa-file-invoice stat-icon"></i>
         </div>
+        <!-- Картка 6: Баланс -->
         <div class="stat-box">
+            <!-- Форматування числа: 2 знаки після коми -->
             <div class="stat-value" style="font-size: 1.5rem;">{{ "%.2f"|format(stats.total_balance) }}</div>
             <div class="stat-label">Баланс (₴)</div>
             <i class="fas fa-wallet stat-icon"></i>
         </div>
     </div>
 
-    <!-- Пошук та фільтри -->
+    <!-- ПОШУК ТА ФІЛЬТРИ -->
     <div class="search-section">
+        <!-- Форма пошуку (GET запит до /clients) -->
         <form method="GET" action="/clients" class="search-form">
             <input type="text" 
                    name="search" 
@@ -424,18 +476,23 @@
             </button>
         </form>
         
+        <!-- Таблетки-фільтри за типом клієнта -->
         <div class="filter-pills">
+            <!-- "Всі" активний якщо немає фільтра -->
             <a href="/clients" class="filter-pill {% if not client_type %}active{% endif %}">
                 Всі
             </a>
+            <!-- Фізичні особи -->
             <a href="/clients?type=Фізична особа" class="filter-pill {% if client_type == 'Фізична особа' %}active{% endif %}">
                 <i class="fas fa-user"></i> Фізичні
             </a>
+            <!-- Юридичні особи -->
             <a href="/clients?type=Юридична особа" class="filter-pill {% if client_type == 'Юридична особа' %}active{% endif %}">
                 <i class="fas fa-building"></i> Юридичні
             </a>
         </div>
         
+        <!-- Кнопка скидання (показується тільки при активному пошуку/фільтрі) -->
         {% if search_query or client_type %}
             <a href="/clients" class="btn-reset">
                 <i class="fas fa-times"></i> СКИДАТИ
@@ -443,9 +500,10 @@
         {% endif %}
     </div>
 
-    <!-- Таблиця -->
+    <!-- ТАБЛИЦЯ КЛІЄНТІВ -->
     <div class="table-responsive">
         <table class="cyber-table">
+            <!-- Заголовки таблиці -->
             <thead>
                 <tr>
                     <th>ID</th>
@@ -456,19 +514,27 @@
                     <th>ДІЇ</th>
                 </tr>
             </thead>
+            <!-- Тіло таблиці -->
             <tbody>
+                <!-- Якщо є клієнти - відображаємо їх -->
                 {% if clients %}
+                    <!-- Цикл по всіх клієнтах -->
                     {% for c in clients %}
+                    <!-- При кліку на рядок - перехід на профіль клієнта -->
                     <tr onclick="window.location='/client/{{ c.id }}'">
+                        <!-- ID клієнта -->
                         <td style="color: var(--accent); font-family: 'Orbitron'; font-weight: bold;">
                             #{{ c.id }}
                         </td>
+                        <!-- ПІБ -->
                         <td>
                             <strong style="font-size: 1rem;">{{ c.name }}</strong>
                         </td>
+                        <!-- Телефон -->
                         <td style="font-family: 'Orbitron'; color: #94a3b8;">
                             {{ c.phone }}
                         </td>
+                        <!-- Тип клієнта (з бейджем) -->
                         <td>
                             {% if c.type == 'Фізична особа' %}
                                 <span class="client-type-badge type-physical">
@@ -480,9 +546,11 @@
                                 </span>
                             {% endif %}
                         </td>
+                        <!-- Дата реєстрації (перші 10 символів = YYYY-MM-DD) -->
                         <td style="font-family: 'Orbitron'; font-size: 0.8rem; color: #64748b;">
                             {{ c.created_at[:10] }}
                         </td>
+                        <!-- Кнопка профілю (stopPropagation щоб не спрацював onclick рядка) -->
                         <td onclick="event.stopPropagation()">
                             <a href="/client/{{ c.id }}" class="btn-action-small">
                                 <i class="fas fa-eye"></i> ПРОФІЛЬ
@@ -490,12 +558,14 @@
                         </td>
                     </tr>
                     {% endfor %}
+                <!-- Якщо клієнтів немає - показуємо порожній стан -->
                 {% else %}
                     <tr>
                         <td colspan="6">
                             <div class="empty-state">
                                 <i class="fas fa-users-slash"></i>
                                 <p style="font-size: 1.2rem; margin: 0;">
+                                    <!-- Різні повідомлення залежно від контексту -->
                                     {% if search_query or client_type %}
                                         Клієнтів не знайдено за вашим запитом
                                     {% else %}
@@ -516,27 +586,32 @@
     </div>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
-// Анімація статистичних карток при завантаженні
+// ========== АНІМАЦІЯ ПРИ ЗАВАНТАЖЕННІ СТОРІНКИ ==========
 document.addEventListener('DOMContentLoaded', () => {
+    // АНІМАЦІЯ СТАТИСТИЧНИХ КАРТОК (поступова поява)
     const statBoxes = document.querySelectorAll('.stat-box');
     statBoxes.forEach((box, index) => {
+        // Спочатку робимо невидимими та зміщуємо вниз
         box.style.opacity = '0';
         box.style.transform = 'translateY(20px)';
         
+        // Через затримку (index * 80ms) - показуємо
         setTimeout(() => {
             box.style.transition = 'all 0.5s ease';
             box.style.opacity = '1';
             box.style.transform = 'translateY(0)';
-        }, index * 80);
+        }, index * 80);  // Кожна наступна картка з'являється на 80ms пізніше
     });
     
-    // Анімація рядків таблиці
+    // АНІМАЦІЯ РЯДКІВ ТАБЛИЦІ (поступова поява)
     const rows = document.querySelectorAll('.cyber-table tbody tr');
     rows.forEach((row, index) => {
         row.style.opacity = '0';
         row.style.transform = 'translateY(20px)';
         
+        // Затримка: 300ms (після карток) + index * 50ms
         setTimeout(() => {
             row.style.transition = 'all 0.5s ease';
             row.style.opacity = '1';
