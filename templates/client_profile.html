@@ -1,132 +1,155 @@
+<!-- 
+    ПРОФІЛЬ КЛІЄНТА - ДЕТАЛЬНА СТОРІНКА
+    Показує інформацію про клієнта, його картки, транзакції та управління
+-->
+
+<!-- Успадковуємо базовий шаблон (sidebar, навігація, фон) -->
 {% extends "base.html" %}
 
 {% block content %}
 <style>
+    /* ========== CSS ЗМІННІ (КОЛЬОРИ ТА КОНСТАНТИ) ========== */
     :root {
-        --bg-main: #020617;
-        --accent: #38bdf8;
-        --accent-glow: rgba(56, 189, 248, 0.4);
-        --glass: rgba(15, 23, 42, 0.9);
-        --border: rgba(56, 189, 248, 0.2);
-        --text: #f8fafc;
-        --error: #ef4444;
-        --success: #00ff88;
+        --bg-main: #020617;              /* Основний темний фон */
+        --accent: #38bdf8;               /* Акцентний блакитний колір */
+        --accent-glow: rgba(56, 189, 248, 0.4);  /* Свічення акценту */
+        --glass: rgba(15, 23, 42, 0.9);  /* Напівпрозорий ефект скла */
+        --border: rgba(56, 189, 248, 0.2);  /* Колір рамок */
+        --text: #f8fafc;                 /* Основний текст */
+        --error: #ef4444;                /* Червоний (помилки/блокування) */
+        --success: #00ff88;              /* Зелений (успіх) */
     }
 
+    /* ========== АНІМАЦІЇ ========== */
+    
+    /* Плавна поява елементів знизу вгору */
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(20px); }  /* Початок: невидимий, зміщений вниз */
+        to { opacity: 1; transform: translateY(0); }       /* Кінець: видимий, на місці */
     }
 
+    /* Ефект блискучої хвилі (як у Монобанку) */
     @keyframes shimmer {
-        0% { background-position: -1000px 0; }
-        100% { background-position: 1000px 0; }
+        0% { background-position: -1000px 0; }    /* Хвиля зліва */
+        100% { background-position: 1000px 0; }   /* Хвиля справа */
     }
 
+    /* Пульсуюче свічення (для заблокованих карток) */
     @keyframes glow-pulse {
         0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
         50% { box-shadow: 0 0 40px var(--accent-glow), 0 0 60px var(--accent-glow); }
     }
 
+    /* ========== ОСНОВНИЙ КОНТЕЙНЕР ========== */
     .content-wrapper { 
-        max-width: 1400px; 
-        margin: 0 auto; 
-        padding: 20px 40px; 
-        animation: fadeIn 0.8s ease-out;
-        box-sizing: border-box; 
+        max-width: 1400px;               /* Максимальна ширина контенту */
+        margin: 0 auto;                  /* Центрування */
+        padding: 20px 40px;              /* Відступи */
+        animation: fadeIn 0.8s ease-out; /* Анімація появи */
+        box-sizing: border-box;          /* Включає padding у ширину */
     }
     
+    /* Grid-сітка: ліва колонка (картки) + права (кнопки/віджети) */
     .profile-grid { 
         display: grid; 
-        grid-template-columns: 1fr 380px;
-        gap: 30px; 
-        align-items: start; 
+        grid-template-columns: 1fr 380px;  /* Ліва частина гумова, права фіксована 380px */
+        gap: 30px;                          /* Відступ між колонками */
+        align-items: start;                 /* Вирівнювання по верху */
     }
 
-    /* ШАПКА */
+    /* ========== ШАПКА ПРОФІЛЮ ========== */
     .profile-header { 
-        background: var(--glass);
-        border: 1px solid var(--border);
-        border-left: 5px solid var(--accent);
+        background: var(--glass);           /* Напівпрозорий фон */
+        border: 1px solid var(--border);    /* Тонка рамка */
+        border-left: 5px solid var(--accent);  /* Жирна ліва рамка (акцент) */
         padding: 30px; 
-        border-radius: 15px; 
+        border-radius: 15px;                /* Закруглені кути */
         display: flex; 
-        justify-content: space-between; 
+        justify-content: space-between;     /* ПІБ ліворуч, рейтинг праворуч */
         align-items: center;
         margin-bottom: 25px;
-        backdrop-filter: blur(15px);
-        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        backdrop-filter: blur(15px);        /* Розмиття фону позаду (скляний ефект) */
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);  /* Тінь */
     }
 
+    /* Ім'я клієнта з градієнтом */
     .profile-name {
         font-size: 2rem;
         margin: 0;
+        /* Градієнт від блакитного до фіолетового */
         background: linear-gradient(135deg, var(--accent), #818cf8);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;           /* Застосувати градієнт до тексту */
+        -webkit-text-fill-color: transparent;    /* Зробити текст прозорим для показу градієнта */
         background-clip: text;
     }
 
-    /* КАРТКИ З 3D ЕФЕКТОМ */
+    /* ========== СІТКА КАРТОК ========== */
     .cards-grid { 
         display: grid; 
+        /* Автоматичне заповнення: мінімум 340px, максимум рівна частина */
         grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); 
-        gap: 25px; 
+        gap: 25px;                      /* Відступ між картками */
         margin-bottom: 30px;
-        perspective: 1000px;
+        perspective: 1000px;            /* 3D перспектива для ефекту нахилу */
     }
 
+    /* ========== БАНКІВСЬКА КАРТКА ========== */
     .bank-card {
         border-radius: 20px;
         padding: 28px;
-        position: relative;
-        overflow: hidden;
-        aspect-ratio: 1.586 / 1; 
-        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+        position: relative;              /* Для абсолютних елементів всередині */
+        overflow: hidden;                /* Ховаємо що виходить за межі */
+        aspect-ratio: 1.586 / 1;         /* Пропорції реальної картки (85.6 x 54 мм) */
+        transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);  /* Плавні переходи */
         border: 1px solid rgba(255,255,255,0.1);
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: space-between;  /* Вміст розподілений рівномірно */
         box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-        transform-style: preserve-3d;
-        cursor: pointer;
+        transform-style: preserve-3d;    /* Зберігає 3D трансформації */
+        cursor: pointer;                 /* Вказівник миші - рука */
     }
 
-    /* 3D ЕФЕКТ ПРИ НАВЕДЕННІ */
+    /* ========== 3D ЕФЕКТ ПРИ НАВЕДЕННІ (як у Монобанку) ========== */
     .bank-card::before {
-        content: '';
+        content: '';                     /* Псевдоелемент (порожній) */
         position: absolute;
-        inset: 0;
+        inset: 0;                        /* Займає всю картку */
+        /* Градієнт-блиск що рухається */
         background: linear-gradient(
             115deg,
             transparent 0%,
             rgba(255, 255, 255, 0.1) 40%,
-            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0.3) 50%,   /* Найяскравіша частина */
             rgba(255, 255, 255, 0.1) 60%,
             transparent 100%
         );
         background-size: 200% 200%;
-        background-position: -100% 0;
+        background-position: -100% 0;     /* Початкова позиція (поза картою) */
         transition: background-position 0.6s;
-        pointer-events: none;
+        pointer-events: none;             /* Не блокує кліки */
         border-radius: 20px;
-        opacity: 0;
+        opacity: 0;                       /* Невидимий до наведення */
     }
 
+    /* При наведенні - показуємо блиск та анімуємо його */
     .bank-card:hover::before {
         opacity: 1;
-        animation: shimmer 2s infinite;
+        animation: shimmer 2s infinite;   /* Безкінечна анімація блиску */
     }
 
+    /* Підняття та масштабування картки при наведенні */
     .bank-card:hover {
         box-shadow: 0 25px 80px rgba(0,0,0,0.7), 0 0 40px var(--accent-glow);
-        transform: translateY(-10px) scale(1.02);
+        transform: translateY(-10px) scale(1.02);  /* Підняти на 10px, збільшити на 2% */
     }
 
-    /* ГОЛОГРАФІЧНИЙ ЕФЕКТ */
+    /* ========== ГОЛОГРАФІЧНИЙ ЕФЕКТ ========== */
+    /* Світлова пляма що слідує за курсором миші */
     .holographic-overlay {
         position: absolute;
         inset: 0;
+        /* Радіальний градієнт в точці курсора (CSS змінні --x, --y) */
         background: 
             radial-gradient(circle at var(--x, 50%) var(--y, 50%), 
                 rgba(255, 255, 255, 0.15) 0%, 
@@ -141,110 +164,122 @@
         opacity: 1;
     }
 
-    /* РІЗНІ ДИЗАЙНИ КАРТОК */
+    /* ========== РІЗНІ ДИЗАЙНИ КАРТОК (ЗА ВАЛЮТОЮ) ========== */
+    
+    /* Картка UAH - темно-синій градієнт */
     .card-uah { 
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #020617 100%);
-        border-bottom: 4px solid var(--accent);
+        border-bottom: 4px solid var(--accent);  /* Блакитна нижня рамка */
     }
     
+    /* Картка USD - зелений градієнт (долар) */
     .card-usd { 
         background: linear-gradient(135deg, #064e3b 0%, #022c22 50%, #001a14 100%);
         border-bottom: 4px solid var(--success);
     }
     
+    /* Картка EUR - фіолетовий градієнт (євро) */
     .card-eur { 
         background: linear-gradient(135deg, #312e81 0%, #1e1b4b 50%, #0f0d2e 100%);
         border-bottom: 4px solid #818cf8;
     }
 
-    /* ЧІП КАРТКИ */
+    /* ========== ЧІП КАРТКИ (золотий квадрат) ========== */
     .card-chip {
         width: 45px;
         height: 32px;
+        /* Градієнт золота для реалістичності */
         background: linear-gradient(135deg, #ffd700, #daa520, #b8860b);
         border-radius: 6px;
+        /* Внутрішні та зовнішні тіні для об'єму */
         box-shadow: 
-            inset 0 2px 5px rgba(0,0,0,0.5),
-            inset 0 -2px 5px rgba(255,255,255,0.3),
-            0 4px 10px rgba(0,0,0,0.3);
+            inset 0 2px 5px rgba(0,0,0,0.5),      /* Внутрішня тінь зверху */
+            inset 0 -2px 5px rgba(255,255,255,0.3), /* Світло знизу */
+            0 4px 10px rgba(0,0,0,0.3);           /* Зовнішня тінь */
         position: relative;
         overflow: hidden;
     }
 
+    /* Контакти чіпа (сітка ліній) */
     .card-chip::before {
         content: '';
         position: absolute;
-        inset: 4px;
+        inset: 4px;                    /* Відступ від країв */
+        /* Горизонтальні та вертикальні лінії */
         background: 
             repeating-linear-gradient(90deg, transparent 0px, rgba(0,0,0,0.1) 1px, transparent 2px),
             repeating-linear-gradient(0deg, transparent 0px, rgba(0,0,0,0.1) 1px, transparent 2px);
         border-radius: 3px;
     }
 
-    /* НОМЕР КАРТКИ */
+    /* ========== НОМЕР КАРТКИ ========== */
     .card-number {
-        font-family: 'Orbitron', monospace;
+        font-family: 'Orbitron', monospace;  /* Моноширинний шрифт */
         font-size: 1.15rem;
-        letter-spacing: 4px;
+        letter-spacing: 4px;              /* Розрідження між символами */
         color: #fff;
         margin: 18px 0;
+        /* Подвійний текстовий ефект: свічення + тінь */
         text-shadow: 
-            0 0 10px rgba(255,255,255,0.5),
-            0 2px 4px rgba(0,0,0,0.5);
+            0 0 10px rgba(255,255,255,0.5),   /* Біле свічення */
+            0 2px 4px rgba(0,0,0,0.5);        /* Чорна тінь для глибини */
         font-weight: 600;
     }
 
+    /* ========== ОВЕРЛЕЙ ЗАБЛОКОВАНОЇ КАРТКИ ========== */
     .blocked-overlay {
         position: absolute; 
-        inset: 0;
-        background: rgba(15, 23, 42, 0.97);
-        backdrop-filter: blur(10px);
+        inset: 0;                         /* Покриває всю картку */
+        background: rgba(15, 23, 42, 0.97);  /* Майже непрозорий фон */
+        backdrop-filter: blur(10px);      /* Розмиття фону */
         display: flex; 
         align-items: center; 
         justify-content: center;
-        color: var(--error); 
+        color: var(--error);              /* Червоний текст */
         font-family: 'Orbitron'; 
         font-size: 1.1rem; 
-        z-index: 10;
+        z-index: 10;                      /* Над всім вмістом картки */
         letter-spacing: 2px; 
-        border: 2px solid var(--error); 
+        border: 2px solid var(--error);   /* Червона рамка */
         border-radius: 20px;
-        animation: glow-pulse 2s infinite;
+        animation: glow-pulse 2s infinite;  /* Пульсація */
     }
 
-    /* ПРАВА ПАНЕЛЬ */
+    /* ========== ПРАВА КОЛОНКА (ВІДЖЕТИ) ========== */
     .side-column { 
         width: 100%; 
         box-sizing: border-box;
     }
 
+    /* Універсальний контейнер для віджетів */
     .cyber-widget {
         background: var(--glass);
         border: 1px solid var(--border);
         border-radius: 12px;
         padding: 22px;
         margin-bottom: 20px;
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);      /* Ефект матового скла */
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
 
+    /* Заголовок віджета */
     .widget-label {
         font-family: 'Orbitron', sans-serif;
         font-size: 0.75rem;
         color: var(--accent);
-        letter-spacing: 2px;
-        text-transform: uppercase;
+        letter-spacing: 2px;              /* Розрідження */
+        text-transform: uppercase;        /* Великі літери */
         margin-bottom: 15px;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 8px;                         /* Відступ між іконкою та текстом */
     }
 
     .widget-label i {
         font-size: 1rem;
     }
 
-    /* КНОПКИ - ЗБІЛЬШЕНІ */
+    /* ========== КНОПКИ ========== */
     .btn-cyber-action {
         background: transparent;
         border: 2px solid var(--accent);
@@ -271,27 +306,30 @@
         font-weight: 600;
     }
 
+    /* Ефект заливки кнопки при наведенні (знизу вгору) */
     .btn-cyber-action::before {
         content: '';
         position: absolute;
         inset: 0;
         background: var(--accent);
-        transform: translateY(100%);
+        transform: translateY(100%);      /* Початково під кнопкою */
         transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        z-index: -1;
+        z-index: -1;                      /* Під текстом */
     }
 
+    /* При наведенні - заливка піднімається */
     .btn-cyber-action:hover::before {
         transform: translateY(0);
     }
 
     .btn-cyber-action:hover {
-        color: #020617;
+        color: #020617;                   /* Темний текст на світлому фоні */
         box-shadow: 0 0 25px var(--accent-glow), 0 0 50px var(--accent-glow);
-        transform: translateY(-3px);
+        transform: translateY(-3px);      /* Підняття кнопки */
         border-color: var(--accent);
     }
 
+    /* Варіація кнопки для небезпечних дій (видалення) */
     .btn-danger-cyber { 
         border-color: var(--error); 
         color: var(--error); 
@@ -307,11 +345,12 @@
         border-color: var(--error);
     }
 
-    /* ГОДИННИК - ЗБІЛЬШЕНИЙ */
+    /* ========== ЖИВИЙ ГОДИННИК ========== */
     #clock-profile {
         font-family: 'Orbitron', monospace;
         font-size: 2.5rem;
         color: var(--accent);
+        /* Подвійне свічення для неонового ефекту */
         text-shadow: 
             0 0 20px var(--accent-glow),
             0 0 40px var(--accent-glow);
@@ -321,7 +360,7 @@
         padding: 15px 0;
     }
 
-    /* КУРС ВАЛЮТ - ЗБІЛЬШЕНИЙ */
+    /* ========== КУРСИ ВАЛЮТ ========== */
     .rate-item {
         display: flex;
         justify-content: space-between;
@@ -330,13 +369,13 @@
         padding: 12px;
         background: rgba(255,255,255,0.03);
         border-radius: 8px;
-        border-left: 3px solid var(--success);
+        border-left: 3px solid var(--success);  /* Зелена лівá рамка для USD */
         font-size: 0.95rem;
     }
 
     .rate-item:last-child {
         margin-bottom: 0;
-        border-left-color: #818cf8;
+        border-left-color: #818cf8;       /* Фіолетова рамка для EUR */
     }
 
     .rate-value {
@@ -345,16 +384,17 @@
         font-size: 1.1rem;
     }
 
-    /* ЖУРНАЛ ОПЕРАЦІЙ */
+    /* ========== ЖУРНАЛ ОПЕРАЦІЙ ========== */
     .log-container {
         background: rgba(15, 23, 42, 0.5);
-        border: 1px dotted var(--border);
+        border: 1px dotted var(--border);  /* Пунктирна рамка */
         border-radius: 10px;
         padding: 18px;
-        max-height: 350px;
-        overflow-y: auto;
+        max-height: 350px;                 /* Максимальна висота */
+        overflow-y: auto;                  /* Прокрутка по вертикалі */
     }
 
+    /* Стилізація скролбара */
     .log-container::-webkit-scrollbar {
         width: 8px;
     }
@@ -369,6 +409,7 @@
         border-radius: 4px;
     }
 
+    /* Окремий запис в журналі */
     .log-entry {
         font-size: 0.8rem;
         padding: 10px 0;
@@ -379,6 +420,7 @@
         transition: all 0.3s;
     }
 
+    /* Підсвічування при наведенні */
     .log-entry:hover {
         background: rgba(255,255,255,0.02);
         padding-left: 10px;
@@ -389,6 +431,7 @@
         border-bottom: none;
     }
 
+    /* Час операції */
     .log-time { 
         color: var(--accent); 
         font-family: 'Orbitron', monospace;
@@ -397,6 +440,7 @@
         font-weight: 600;
     }
 
+    /* Статус операції (бейдж) */
     .log-status {
         font-family: 'Orbitron', monospace;
         font-size: 0.7rem;
@@ -405,6 +449,7 @@
         font-weight: 700;
     }
 
+    /* Різні кольори статусів */
     .status-success {
         background: rgba(0, 255, 136, 0.1);
         color: var(--success);
@@ -423,31 +468,33 @@
         border: 1px solid var(--error);
     }
 
-    /* КНОПКА БЛОКУВАННЯ КАРТКИ */
+    /* ========== КНОПКА БЛОКУВАННЯ НА КАРТЦІ ========== */
     .card-action-btn {
         padding: 10px 12px;
         border-radius: 8px;
         transition: all 0.3s;
         background: rgba(0,0,0,0.3);
         border: 1px solid rgba(255,255,255,0.2);
-        z-index: 20;
+        z-index: 20;                      /* Над іншими елементами картки */
         position: relative;
         color: #fff;
         text-decoration: none;
     }
 
+    /* Зелений колір для розблокованої картки */
     .card-action-btn.card-blocked {
         color: var(--success);
     }
 
     .card-action-btn:hover {
         background: rgba(255,255,255,0.1);
-        transform: scale(1.1);
+        transform: scale(1.1);            /* Збільшення на 10% */
         box-shadow: 0 0 20px rgba(255,255,255,0.3);
     }
 
-    /* АДАПТИВНІСТЬ */
+    /* ========== АДАПТИВНІСТЬ (МОБІЛЬНІ ПРИСТРОЇ) ========== */
     @media (max-width: 1024px) {
+        /* На планшетах - одна колонка */
         .profile-grid {
             grid-template-columns: 1fr;
         }
@@ -456,14 +503,15 @@
             max-width: 100%;
         }
 
+        /* Менші картки на маленьких екранах */
         .cards-grid {
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         }
     }
 
-    /* НОВА КАРТКА */
+    /* ========== ПЛЕЙСХОЛДЕР ДЛЯ НОВОЇ КАРТКИ ========== */
     .new-card-placeholder {
-        border: 2px dashed var(--border);
+        border: 2px dashed var(--border);  /* Пунктирна рамка */
         background: rgba(255,255,255,0.02);
         align-items: center;
         justify-content: center;
@@ -477,6 +525,7 @@
         box-shadow: 0 0 30px var(--accent-glow);
     }
 
+    /* Кнопки вибору валюти для нової картки */
     .issue-card-buttons {
         display: flex;
         gap: 12px;
@@ -491,32 +540,43 @@
     }
 </style>
 
+<!-- ========== HTML СТРУКТУРА ========== -->
 <div class="content-wrapper">
+    <!-- ШАПКА ПРОФІЛЮ -->
     <div class="profile-header">
         <div>
+            <!-- ПІБ клієнта з градієнтом -->
             <h1 class="profile-name">{{ client.name }}</h1>
+            <!-- Додаткова інформація: статус та ID -->
             <p style="color: #64748b; font-family: 'Orbitron'; margin-top: 8px; font-size: 0.85rem;">
                 СТАТУС: АКТИВНИЙ | ID: #{{ client.id }}
             </p>
         </div>
+        <!-- РЕЙТИНГ КЛІЄНТА (праворуч) -->
         <div style="text-align: right; font-family: 'Orbitron'; color: var(--success); border: 2px solid var(--success); padding: 15px 20px; border-radius: 10px; background: rgba(0, 255, 136, 0.05);">
             <small style="display:block; font-size: 0.65rem; opacity: 0.7; margin-bottom: 5px;">РЕЙТИНГ КЛІЄНТА</small>
             <div style="font-size: 1.2rem; font-weight: 700;">{{ rating.label }}</div>
         </div>
     </div>
 
+    <!-- ДВОКОЛОНКОВА СІТКА -->
     <div class="profile-grid">
+        <!-- ЛІВА КОЛОНКА - КАРТКИ ТА ЖУРНАЛ -->
         <div class="main-column">
             <h3 class="widget-label" style="font-size: 0.9rem; margin-bottom: 20px;">
                 <i class="fas fa-microchip"></i> АКТИВНІ ФІНАНСОВІ ШЛЮЗИ
             </h3>
             
+            <!-- СІТКА КАРТОК -->
             <div class="cards-grid">
+                <!-- Цикл по всіх картках клієнта -->
                 {% for card in cards %}
                 <div class="bank-card {{ 'card-usd' if card.currency == 'USD' else 'card-uah' if card.currency == 'UAH' else 'card-eur' }}" 
                      data-card-id="{{ card.id }}">
+                    <!-- Оверлей для голографічного ефекту -->
                     <div class="holographic-overlay"></div>
                     
+                    <!-- Якщо картка заблокована - показуємо оверлей -->
                     {% if card.status == 'Заблокована' %}
                         <div class="blocked-overlay">
                             <i class="fas fa-user-slash" style="margin-right: 12px; font-size: 1.3rem;"></i> 
@@ -524,6 +584,7 @@
                         </div>
                     {% endif %}
 
+                    <!-- ВЕРХ КАРТКИ: Назва банку та чіп -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <span style="font-family: 'Orbitron'; font-size: 0.65rem; opacity: 0.8; letter-spacing: 1.5px; font-weight: 600;">
                             КРИСТАЛ БАНК // {{ card.currency }}
@@ -531,34 +592,41 @@
                         <div class="card-chip"></div>
                     </div>
 
+                    <!-- НОМЕР КАРТКИ -->
                     <div class="card-number">
                         {{ card.card_number }}
                     </div>
 
+                    <!-- НИЗ КАРТКИ: Баланс та кнопка блокування -->
                     <div style="display: flex; justify-content: space-between; align-items: flex-end;">
                         <div>
                             <p style="font-size: 0.55rem; color: rgba(255,255,255,0.5); margin: 0 0 5px 0; font-family: 'Orbitron'; letter-spacing: 1px;">
                                 ПОТОЧНИЙ БАЛАНС
                             </p>
                             <p style="font-family: 'Orbitron'; font-size: 1.6rem; color: #fff; margin: 0; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">
+                                <!-- Відображення балансу з відповідним символом валюти -->
                                 {{ card.balance }} {{ '₴' if card.currency == 'UAH' else '$' if card.currency == 'USD' else '€' }}
                             </p>
                         </div>
                         
+                        <!-- Кнопка блокування/розблокування -->
                         <a href="/toggle-card/{{ card.id }}" 
                            class="card-action-btn {% if card.status == 'Заблокована' %}card-blocked{% endif %}" 
                            title="{{ 'Розблокувати картку' if card.status == 'Заблокована' else 'Заблокувати картку' }}">
+                            <!-- Іконка замка: відкритий якщо заблокована, закритий якщо активна -->
                             <i class="fas {{ 'fa-unlock-alt' if card.status == 'Заблокована' else 'fa-lock' }} fa-lg"></i>
                         </a>
                     </div>
                 </div>
                 {% endfor %}
 
+                <!-- ПЛЕЙСХОЛДЕР ДЛЯ ДОДАВАННЯ НОВОЇ КАРТКИ (якщо менше 3 карток) -->
                 {% if cards|length < 3 %}
                 <div class="bank-card new-card-placeholder">
                     <p class="widget-label" style="margin-bottom: 20px; font-size: 0.85rem;">
                         <i class="fas fa-plus-circle"></i> ЕМІСІЯ НОВОГО РАХУНКУ
                     </p>
+                    <!-- Кнопки вибору валюти -->
                     <div class="issue-card-buttons">
                         <a href="/issue-card/{{ client.id }}/UAH" class="btn-cyber-action btn-issue-card">
                             + UAH
@@ -574,11 +642,13 @@
                 {% endif %}
             </div>
 
+            <!-- ЖУРНАЛ ОПЕРАЦІЙ -->
             <div class="cyber-widget">
                 <p class="widget-label">
                     <i class="fas fa-terminal"></i> ЖУРНАЛ ОПЕРАЦІЙ СИСТЕМИ
                 </p>
                 <div class="log-container">
+                    <!-- Запис про реєстрацію клієнта -->
                     <div class="log-entry">
                         <span>
                             <span class="log-time">[14:20:05]</span> 
@@ -586,14 +656,17 @@
                         </span>
                         <span class="log-status status-success">УСПІШНО</span>
                     </div>
+                    <!-- Цикл по картках для відображення операцій -->
                     {% for card in cards %}
                     <div class="log-entry">
                         <span>
                             <span class="log-time">[10:15:32]</span> 
+                            <!-- Показуємо останні 4 цифри номера картки -->
                             Активація рахунку {{ card.currency }} (•••• {{ card.card_number[-4:] }})
                         </span>
                         <span class="log-status status-opened">ВІДКРИТО</span>
                     </div>
+                    <!-- Якщо картка заблокована - додаємо запис про блокування -->
                     {% if card.status == 'Заблокована' %}
                     <div class="log-entry">
                         <span>
@@ -608,21 +681,27 @@
             </div>
         </div>
 
+        <!-- ПРАВА КОЛОНКА - ВІДЖЕТИ ТА КНОПКИ -->
         <div class="side-column">
+            <!-- ЖИВИЙ ГОДИННИК -->
             <div class="cyber-widget">
                 <p class="widget-label">
                     <i class="fas fa-clock"></i> СИСТЕМНИЙ ЧАС
                 </p>
+                <!-- Час (оновлюється JavaScript) -->
                 <div id="clock-profile">00:00:00</div>
+                <!-- Дата (оновлюється JavaScript) -->
                 <div style="text-align: center; font-family: 'Orbitron'; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 10px;" id="date-profile">
                     <!-- Дата буде тут -->
                 </div>
             </div>
 
+            <!-- КУРС ВАЛЮТ НБУ -->
             <div class="cyber-widget">
                 <p class="widget-label">
                     <i class="fas fa-satellite-dish"></i> КУРС ВАЛЮТ НБУ
                 </p>
+                <!-- Контейнер для курсів (заповнюється JavaScript) -->
                 <div id="rates-profile">
                     <p style="font-size: 0.8rem; opacity: 0.5; text-align: center; font-family: 'Orbitron';">
                         Отримання даних...
@@ -630,18 +709,22 @@
                 </div>
             </div>
 
+            <!-- КЕРУВАННЯ ПРОФІЛЕМ -->
             <div class="cyber-widget">
                 <p class="widget-label">
                     <i class="fas fa-user-cog"></i> КЕРУВАННЯ ПРОФІЛЕМ
                 </p>
+                <!-- Кнопка редагування -->
                 <a href="/edit-client/{{ client.id }}" class="btn-cyber-action">
                     <i class="fas fa-user-edit"></i> РЕДАГУВАТИ ПРОФІЛЬ
                 </a>
+                <!-- Кнопка видалення (з підтвердженням) -->
                 <a href="/delete-client/{{ client.id }}" class="btn-cyber-action btn-danger-cyber" onclick="return confirm('⚠️ УВАГА!\n\nВи дійсно хочете видалити клієнта та всі пов\'язані дані?\n\nЦю дію неможливо скасувати!')">
                     <i class="fas fa-user-times"></i> ВИДАЛИТИ З БАЗИ
                 </a>
             </div>
 
+            <!-- КНОПКА НАЗАД -->
             <a href="/clients" class="btn-cyber-action" style="border-color: rgba(255,255,255,0.3); color: #94a3b8;">
                 <i class="fas fa-arrow-left"></i> НАЗАД ДО СПИСКУ
             </a>
@@ -649,13 +732,15 @@
     </div>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
-    // ЖИВИЙ ГОДИННИК З ДАТОЮ
+    // ========== ЖИВИЙ ГОДИННИК З ДАТОЮ ==========
     function updateClock() {
-        const now = new Date();
+        const now = new Date();  // Поточна дата та час
         const timeEl = document.getElementById('clock-profile');
         const dateEl = document.getElementById('date-profile');
         
+        // Оновлення часу (формат: 14:30:45)
         if(timeEl) {
             timeEl.textContent = now.toLocaleTimeString('uk-UA', {
                 hour: '2-digit',
@@ -664,6 +749,7 @@
             });
         }
         
+        // Оновлення дати (формат: понеділок, 14 лютого 2026 р.)
         if(dateEl) {
             dateEl.textContent = now.toLocaleDateString('uk-UA', {
                 weekday: 'long',
@@ -673,18 +759,23 @@
             });
         }
     }
+    // Оновлюємо кожну секунду
     setInterval(updateClock, 1000);
-    updateClock();
+    updateClock();  // Перший запуск одразу
 
-    // КУРС ВАЛЮТ НБУ
+    // ========== ОТРИМАННЯ КУРСІВ ВАЛЮТ З API НБУ ==========
     async function getRates() {
         const target = document.getElementById('rates-profile');
         try {
+            // Запит до API НБУ (JSON формат)
             const res = await fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json');
             const data = await res.json();
+            
+            // Шукаємо USD та EUR в масиві валют
             const usd = data.find(i => i.cc === 'USD').rate.toFixed(2);
             const eur = data.find(i => i.cc === 'EUR').rate.toFixed(2);
             
+            // Відображаємо курси
             target.innerHTML = `
                 <div class="rate-item">
                     <span style="display: flex; align-items: center; gap: 8px;">
@@ -702,26 +793,30 @@
                 </div>
             `;
         } catch (e) { 
+            // Якщо помилка - показуємо повідомлення
             target.innerHTML = '<p style="color:var(--error); font-size:0.75rem; text-align: center;">⚠️ Помилка зв\'язку з НБУ</p>'; 
         }
     }
-    getRates();
-    // Оновлюємо курс кожні 5 хвилин
+    getRates();  // Перший запуск
+    // Оновлюємо курс кожні 5 хвилин (300000 мс = 5 хв)
     setInterval(getRates, 300000);
 
-    // 3D ЕФЕКТ ДЛЯ КАРТОК (як у Монобанк)
+    // ========== 3D ЕФЕКТ ДЛЯ КАРТОК (як у Монобанку) ==========
     document.querySelectorAll('.bank-card').forEach(card => {
+        // При русі миші над карткою
         card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const rect = card.getBoundingClientRect();  // Розміри та позиція картки
+            const x = e.clientX - rect.left;            // X координата миші відносно картки
+            const y = e.clientY - rect.top;             // Y координата миші відносно картки
             
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
+            const centerX = rect.width / 2;             // Центр картки по X
+            const centerY = rect.height / 2;            // Центр картки по Y
             
-            const rotateX = (y - centerY) / 10;
-            const rotateY = (centerX - x) / 10;
+            // Обчислюємо кут нахилу (чим далі від центру - тим більше нахил)
+            const rotateX = (y - centerY) / 10;         // Нахил по X (вверх/вниз)
+            const rotateY = (centerX - x) / 10;         // Нахил по Y (ліво/право)
             
+            // Застосовуємо 3D трансформацію
             card.style.transform = `
                 perspective(1000px)
                 rotateX(${rotateX}deg)
@@ -730,16 +825,19 @@
                 scale(1.02)
             `;
             
-            // Голографічний ефект
+            // Голографічний ефект (світлова пляма)
             const overlay = card.querySelector('.holographic-overlay');
             if(overlay) {
+                // Перетворюємо координати в проценти
                 const percentX = (x / rect.width) * 100;
                 const percentY = (y / rect.height) * 100;
+                // Встановлюємо CSS змінні для радіального градієнта
                 overlay.style.setProperty('--x', percentX + '%');
                 overlay.style.setProperty('--y', percentY + '%');
             }
         });
         
+        // При відведенні миші - скидаємо трансформацію
         card.addEventListener('mouseleave', () => {
             card.style.transform = '';
         });
