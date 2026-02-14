@@ -1,88 +1,108 @@
+<!-- 
+    СТОРІНКА "ПРО СИСТЕМУ"
+    Інформація про банк, контакти, партнерів та статистику
+-->
+
+<!-- Успадковуємо базовий шаблон -->
 {% extends "base.html" %}
 {% block content %}
 <style>
+    /* ========== ЗАГОЛОВОК СТОРІНКИ ========== */
     .about-header {
         text-align: center;
         margin-bottom: 60px;
-        animation: slideDown 0.8s ease-out;
+        animation: slideDown 0.8s ease-out;  /* Анімація плавної появи зверху */
     }
 
+    /* Анімація появи зверху вниз */
     @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-30px); }
-        to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(-30px); }  /* Початок: невидимий, вище */
+        to { opacity: 1; transform: translateY(0); }        /* Кінець: видимий, на місці */
     }
 
+    /* Головний заголовок з градієнтом */
     .main-title {
         font-family: 'Orbitron', sans-serif;
         font-size: 2.5rem;
         color: #fff;
         margin-bottom: 15px;
+        /* Градієнт від білого до блакитного */
         background: linear-gradient(135deg, #fff, var(--accent));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        -webkit-background-clip: text;           /* Градієнт застосовується до тексту */
+        -webkit-text-fill-color: transparent;    /* Робимо текст прозорим щоб показати градієнт */
         background-clip: text;
     }
 
+    /* Підзаголовок */
     .subtitle {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.6);  /* Напівпрозорий білий */
         font-size: 0.9rem;
-        letter-spacing: 3px;
+        letter-spacing: 3px;               /* Розрідження між літерами */
         font-family: 'Orbitron';
     }
 
-    /* КАРТКИ З ІНФОРМАЦІЄЮ */
+    /* ========== СІТКА ІНФОРМАЦІЙНИХ КАРТОК ========== */
     .info-grid {
         display: grid;
+        /* Автоматичне заповнення: мінімум 320px на картку, максимум рівна частина */
         grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 25px;
+        gap: 25px;                         /* Відступ між картками */
         margin-bottom: 40px;
     }
 
+    /* ========== ІНФОРМАЦІЙНА КАРТКА ========== */
     .info-card {
         padding: 35px;
         position: relative;
-        overflow: hidden;
-        background: rgba(15, 23, 42, 0.6);
+        overflow: hidden;                  /* Ховаємо анімацію що виходить за межі */
+        background: rgba(15, 23, 42, 0.6); /* Напівпрозорий темний фон */
         border: 1px solid rgba(255, 255, 255, 0.1);
         border-radius: 20px;
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);       /* Розмиття фону позаду (ефект скла) */
         transition: 0.3s;
     }
 
+    /* Анімація блиску при наведенні (рухається зліва направо) */
     .info-card::before {
-        content: "";
+        content: "";                       /* Порожній псевдоелемент */
         position: absolute;
         top: 0;
-        left: -100%;
+        left: -100%;                       /* Початкова позиція - поза карткою зліва */
         width: 100%;
         height: 100%;
+        /* Градієнт-блиск */
         background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.1), transparent);
         transition: 0.6s;
     }
 
+    /* При наведенні - блиск рухається направо */
     .info-card:hover::before {
-        left: 100%;
+        left: 100%;                        /* Кінцева позиція - поза карткою справа */
     }
 
+    /* Ефекти при наведенні на картку */
     .info-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-5px);       /* Підняття на 5px */
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-        border-color: var(--accent);
+        border-color: var(--accent);       /* Зміна кольору рамки */
     }
 
+    /* ========== ІКОНКА КАРТКИ ========== */
     .card-icon {
-        font-size: 2.5rem;
+        font-size: 2.5rem;                 /* Великий розмір емодзі */
         color: var(--accent);
         margin-bottom: 20px;
         display: inline-block;
         transition: all 0.4s ease;
     }
 
+    /* Анімація іконки при наведенні: збільшення та поворот */
     .info-card:hover .card-icon {
-        transform: scale(1.2) rotate(10deg);
-        text-shadow: 0 0 30px var(--accent-glow);
+        transform: scale(1.2) rotate(10deg);  /* Збільшити на 20% та повернути на 10° */
+        text-shadow: 0 0 30px var(--accent-glow);  /* Додати свічення */
     }
 
+    /* Заголовок картки */
     .card-title {
         font-family: 'Orbitron';
         color: var(--accent);
@@ -91,55 +111,61 @@
         letter-spacing: 1px;
     }
 
+    /* Вміст картки */
     .card-content {
         color: rgba(255, 255, 255, 0.8);
-        line-height: 1.8;
+        line-height: 1.8;                  /* Міжрядковий інтервал */
         font-size: 0.9rem;
     }
 
-    /* СПИСОК ПАРТНЕРІВ */
+    /* ========== СПИСОК ПАРТНЕРІВ ========== */
     .partners-list {
-        list-style: none;
+        list-style: none;                  /* Без маркерів списку */
         padding: 0;
         margin-top: 20px;
     }
 
     .partners-list li {
         padding: 12px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);  /* Тонка лінія-роздільник */
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 15px;                         /* Відступ між елементами */
         transition: all 0.3s ease;
     }
 
+    /* Ефект при наведенні на пункт списку */
     .partners-list li:hover {
-        padding-left: 15px;
-        background: rgba(56, 189, 248, 0.05);
-        border-left: 3px solid var(--accent);
+        padding-left: 15px;                /* Зміщення вправо */
+        background: rgba(56, 189, 248, 0.05);  /* Легке підсвічування */
+        border-left: 3px solid var(--accent);  /* Ліва рамка-акцент */
     }
 
+    /* Кружок-індикатор перед назвою партнера */
     .partner-icon {
         width: 8px;
         height: 8px;
         background: var(--accent);
-        border-radius: 50%;
-        box-shadow: 0 0 10px var(--accent-glow);
+        border-radius: 50%;                /* Круглий */
+        box-shadow: 0 0 10px var(--accent-glow);  /* Свічення */
     }
 
+    /* Назва партнера */
     .partner-name {
         font-weight: 600;
         color: #fff;
-        min-width: 120px;
+        min-width: 120px;                  /* Мінімальна ширина для вирівнювання */
     }
 
+    /* Деталі про партнера */
     .partner-details {
         color: rgba(255, 255, 255, 0.6);
         font-size: 0.85rem;
     }
 
-    /* КОНТАКТНИЙ БЛОК */
+    /* ========== КОНТАКТНИЙ БЛОК ========== */
     .contact-section {
+        /* Градієнт від блакитного до темного */
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(2, 6, 23, 0.9));
         border: 2px solid var(--accent);
         border-radius: 20px;
@@ -150,6 +176,7 @@
         overflow: hidden;
     }
 
+    /* Світлова аура позаду контакту */
     .contact-section::after {
         content: "";
         position: absolute;
@@ -157,22 +184,25 @@
         left: 50%;
         width: 300px;
         height: 300px;
+        /* Радіальний градієнт (світло від центру) */
         background: radial-gradient(circle, var(--accent-glow), transparent);
-        transform: translate(-50%, -50%);
-        filter: blur(80px);
+        transform: translate(-50%, -50%); /* Центрування */
+        filter: blur(80px);               /* Сильне розмиття для м'якого свічення */
         opacity: 0.3;
-        z-index: -1;
+        z-index: -1;                      /* Під текстом */
     }
 
+    /* Заголовок контактного блоку */
     .contact-title {
         font-family: 'Orbitron';
         font-size: 1.5rem;
         color: var(--accent);
         margin-bottom: 30px;
-        text-transform: uppercase;
+        text-transform: uppercase;         /* Великі літери */
         letter-spacing: 2px;
     }
 
+    /* Сітка контактних елементів */
     .contact-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -180,6 +210,7 @@
         margin-bottom: 30px;
     }
 
+    /* Окрема контактна плитка */
     .contact-item {
         padding: 20px;
         background: rgba(0, 0, 0, 0.3);
@@ -189,11 +220,12 @@
     }
 
     .contact-item:hover {
-        transform: translateY(-5px);
+        transform: translateY(-5px);       /* Підняття */
         border-color: var(--accent);
         box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
     }
 
+    /* Підпис контакту (маленький текст зверху) */
     .contact-label {
         font-size: 0.7rem;
         color: rgba(255, 255, 255, 0.5);
@@ -203,6 +235,7 @@
         letter-spacing: 1px;
     }
 
+    /* Значення контакту (номер телефону тощо) */
     .contact-value {
         font-size: 1.3rem;
         color: var(--accent);
@@ -210,6 +243,7 @@
         font-family: 'Orbitron';
     }
 
+    /* Детальна інформація про контакти */
     .contact-details {
         background: rgba(0, 0, 0, 0.3);
         border-radius: 15px;
@@ -230,21 +264,22 @@
     }
 
     .contact-details p:last-child {
-        border-bottom: none;
+        border-bottom: none;             /* Без рамки для останнього елемента */
     }
 
+    /* Іконка контакту */
     .contact-icon {
         color: var(--accent);
         font-size: 1.1rem;
     }
 
-    /* КНОПКА */
+    /* ========== ОСНОВНА КНОПКА ========== */
     .btn-primary {
         display: inline-block;
         background: var(--accent);
-        color: #000;
+        color: #000;                      /* Чорний текст на світлому фоні */
         padding: 18px 40px;
-        border-radius: 50px;
+        border-radius: 50px;              /* Дуже закруглені кути */
         text-decoration: none;
         font-family: 'Orbitron';
         font-weight: 700;
@@ -257,12 +292,12 @@
     }
 
     .btn-primary:hover {
-        transform: translateY(-5px) scale(1.05);
+        transform: translateY(-5px) scale(1.05);  /* Підняти та збільшити */
         box-shadow: 0 15px 50px var(--accent-glow);
-        letter-spacing: 4px;
+        letter-spacing: 4px;              /* Збільшити розрідження літер */
     }
 
-    /* ТАЙМЛАЙН (СТАТИСТИКА) */
+    /* ========== СТАТИСТИЧНИЙ БАНЕР ========== */
     .stats-banner {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -270,16 +305,19 @@
         margin: 40px 0;
     }
 
+    /* Картка статистики */
     .stat-card {
         text-align: center;
         padding: 30px;
+        /* Градієнт від блакитного до темного */
         background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(2, 6, 23, 0.8));
         border: 1px solid var(--accent);
         border-radius: 15px;
         transition: all 0.4s ease;
-        animation: statPulse 3s ease-in-out infinite;
+        animation: statPulse 3s ease-in-out infinite;  /* Безкінечна пульсація */
     }
 
+    /* Затримка анімації для другої та третьої картки */
     .stat-card:nth-child(2) {
         animation-delay: 0.5s;
     }
@@ -288,11 +326,19 @@
         animation-delay: 1s;
     }
 
+    /* Анімація пульсації (збільшення/зменшення) */
     @keyframes statPulse {
-        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }
-        50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(56, 189, 248, 0.4); }
+        0%, 100% { 
+            transform: scale(1); 
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); 
+        }
+        50% { 
+            transform: scale(1.05);        /* Збільшення на 5% */
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.4); 
+        }
     }
 
+    /* Значення статистики (велике число) */
     .stat-value {
         font-size: 2.5rem;
         font-family: 'Orbitron';
@@ -301,6 +347,7 @@
         text-shadow: 0 0 20px var(--accent-glow);
     }
 
+    /* Підпис статистики (текст під числом) */
     .stat-label {
         font-size: 0.8rem;
         color: rgba(255, 255, 255, 0.7);
@@ -310,14 +357,15 @@
     }
 </style>
 
+<!-- ========== HTML СТРУКТУРА ========== -->
 <div class="content-wrapper">
-    <!-- Заголовок -->
+    <!-- ЗАГОЛОВОК -->
     <div class="about-header">
         <h1 class="main-title">КРИСТАЛБАНК</h1>
         <p class="subtitle">[ АВТОМАТИЗОВАНА СИСТЕМА УПРАВЛІННЯ v2.0 ]</p>
     </div>
 
-    <!-- Статистика -->
+    <!-- СТАТИСТИКА (3 картки з числами) -->
     <div class="stats-banner">
         <div class="stat-card">
             <div class="stat-value">38</div>
@@ -333,8 +381,9 @@
         </div>
     </div>
 
-    <!-- Інформаційні картки -->
+    <!-- ІНФОРМАЦІЙНІ КАРТКИ -->
     <div class="info-grid">
+        <!-- Картка 1: Про установу -->
         <div class="info-card">
             <div class="card-icon">🏦</div>
             <h3 class="card-title">ПРО УСТАНОВУ</h3>
@@ -344,6 +393,7 @@
             </div>
         </div>
 
+        <!-- Картка 2: Безпека -->
         <div class="info-card">
             <div class="card-icon">🛡️</div>
             <h3 class="card-title">БЕЗПЕКА ТА ГАРАНТІЇ</h3>
@@ -354,6 +404,7 @@
             </div>
         </div>
 
+        <!-- Картка 3: Міжнародні перекази -->
         <div class="info-card">
             <div class="card-icon">🌐</div>
             <h3 class="card-title">МІЖНАРОДНІ ПЕРЕКАЗИ</h3>
@@ -369,7 +420,7 @@
         </div>
     </div>
 
-    <!-- Партнерські мережі -->
+    <!-- ПАРТНЕРСЬКІ МЕРЕЖІ -->
     <div class="info-card" style="margin-bottom: 30px;">
         <div class="card-icon">💳</div>
         <h3 class="card-title">ПАРТНЕРСЬКІ ПЛАТІЖНІ МЕРЕЖІ</h3>
@@ -397,12 +448,13 @@
         </ul>
     </div>
 
-    <!-- Контактна інформація -->
+    <!-- КОНТАКТНА ІНФОРМАЦІЯ -->
     <div class="contact-section">
         <h2 class="contact-title">
             <i class="fas fa-headset"></i> Контакт-Центр
         </h2>
         
+        <!-- Телефони -->
         <div class="contact-grid">
             <div class="contact-item">
                 <div class="contact-label">Дзвінки по Україні</div>
@@ -416,6 +468,7 @@
             </div>
         </div>
 
+        <!-- Детальні контакти -->
         <div class="contact-details">
             <p>
                 <i class="fas fa-map-marker-alt contact-icon"></i>
@@ -435,47 +488,55 @@
             </p>
         </div>
 
+        <!-- Кнопка переходу на сайт -->
         <a href="https://crystalbank.com.ua/" target="_blank" class="btn-primary">
             <i class="fas fa-external-link-alt"></i> Відкрити Офіційний Портал
         </a>
     </div>
 </div>
 
+<!-- ========== JAVASCRIPT ========== -->
 <script>
-    // Анімація чисел при прокрутці
+    // ========== АНІМАЦІЯ ЧИСЕЛ ПРИ ПРОКРУТЦІ ==========
+    // Налаштування спостерігача (Intersection Observer)
     const observerOptions = {
-        threshold: 0.5
+        threshold: 0.5  // Спрацьовує коли 50% елемента видно на екрані
     };
 
+    // Створення спостерігача
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            // Якщо елемент з'явився на екрані
             if (entry.isIntersecting) {
                 const target = entry.target.querySelector('.stat-value');
-                const finalValue = parseInt(target.textContent);
-                animateValue(target, 0, finalValue, 2000);
-                observer.unobserve(entry.target);
+                const finalValue = parseInt(target.textContent);  // Кінцеве значення
+                animateValue(target, 0, finalValue, 2000);        // Анімація від 0 до кінцевого за 2 сек
+                observer.unobserve(entry.target);                 // Зупиняємо спостереження (щоб не повторювалось)
             }
         });
     }, observerOptions);
 
+    // Додаємо спостереження для всіх stat-card елементів
     document.querySelectorAll('.stat-card').forEach(card => {
         observer.observe(card);
     });
 
+    // ========== ФУНКЦІЯ АНІМАЦІЇ ЧИСЛА ==========
     function animateValue(element, start, end, duration) {
-        const range = end - start;
-        const increment = range / (duration / 16);
-        let current = start;
+        const range = end - start;                    // Діапазон зміни
+        const increment = range / (duration / 16);    // Приріст за кадр (60 FPS = 16ms)
+        let current = start;                          // Поточне значення
 
+        // Таймер що оновлює значення кожні 16ms
         const timer = setInterval(() => {
             current += increment;
             if (current >= end) {
-                element.textContent = end;
-                clearInterval(timer);
+                element.textContent = end;            // Кінцеве значення
+                clearInterval(timer);                 // Зупинка таймера
             } else {
-                element.textContent = Math.floor(current);
+                element.textContent = Math.floor(current);  // Поточне значення (округлене)
             }
-        }, 16);
+        }, 16);  // 16ms ≈ 60 FPS
     }
 </script>
 {% endblock %}
